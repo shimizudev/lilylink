@@ -91,8 +91,9 @@ export class LilyRestHandler {
 
     if (query.startsWith('http')) {
       identifier = query;
+    } else {
+      identifier = `${source}:${query}`;
     }
-    identifier = `${source}:${query}`;
 
     const params = new URLSearchParams();
     params.set('identifier', identifier);
