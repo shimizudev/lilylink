@@ -1,37 +1,42 @@
 {
-	"name": "lilylink",
-	"version": "0.1.0",
-	"description": "A memory-safe lavalink client with enhanced performance.",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"module": "dist/index.mjs",
-	"files": ["dist", "README.md", "LICENSE", "package.json"],
-	"scripts": {
-		"build": "tsup",
-		"lint": "biome lint .",
-		"format": "biome format .",
-		"check": "biome check .",
-		"check:fix": "biome lint . --fix --unsafe",
-		"prepare": "npm rum build"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/devaoto/lilylink.git"
-	},
-	"keywords": ["Lilylink", "Lavalink", "Lavalink", "Client", "Music"],
-	"author": "Mohtasim Alam Sohom <sohom829@gmail.com>",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/devaoto/lilylink/issues"
-	},
-	"homepage": "https://github.com/devaoto/lilylink#readme",
-	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
-		"tsup": "^8.3.5",
-		"typescript": "^5.6.3"
-	},
-	"dependencies": {
-		"radash": "^12.1.0",
-		"zod": "^3.23.8"
-	}
+  "name": "lilylink",
+  "version": "0.1.0",
+  "description": "A memory-safe lavalink client with enhanced performance.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "files": ["dist", "README.md", "LICENSE", "package.json"],
+  "scripts": {
+    "build": "tsup",
+    "lint": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "check:fix": "biome check --write . --unsafe",
+    "prepare": "npm rum build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devaoto/lilylink.git"
+  },
+  "keywords": ["Lilylink", "Lavalink", "Lavalink", "Client", "Music"],
+  "author": "Mohtasim Alam Sohom <sohom829@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devaoto/lilylink/issues"
+  },
+  "homepage": "https://github.com/devaoto/lilylink#readme",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.9.0",
+    "@types/ws": "^8.5.13",
+    "dotenv": "^16.4.5",
+    "discord.js": "^14.16.3",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "radash": "^12.1.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  }
 }
