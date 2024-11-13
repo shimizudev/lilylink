@@ -66,8 +66,8 @@ export class LilyRestHandler {
   public url: string | null = null;
   public defaultHeaders: Record<string, string> | null = null;
 
-  private async makeRequest<T>(url: string, options: RequestInit = {}) {
-    const [res, error] = await lilyRequest<T>(url, options);
+  private async makeRequest<T>(url: string, options: RequestInit = {}, json = true) {
+    const [res, error] = await lilyRequest<T>(url, options, json);
     if (error) {
       throw error;
     }
@@ -125,7 +125,8 @@ export class LilyRestHandler {
       {
         method: 'DELETE',
         headers: this.defaultHeaders as HeadersInit,
-      }
+      },
+      false
     );
 
     return res;

@@ -1,10 +1,14 @@
 export const lilyRequest = async <T>(
   url: URL | string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  json = true,
 ) => {
   try {
     const res = await fetch(url, options);
-    return [(await res.json()) as T, undefined] as const;
+    if (json) {
+      return [(await res.json()) as T, undefined] as const;
+    }
+      return [(await res.text()) as unknown as T, undefined] as const;
   } catch (error) {
     return [undefined, error] as const;
   }
