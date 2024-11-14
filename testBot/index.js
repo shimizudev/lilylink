@@ -22,7 +22,7 @@ const {
   EmbedBuilder,
   ActivityType,
 } = require('discord.js');
-const { LilyManager, Source, LoadType, PlayerLoop } = require('../dist');
+const { LilyManager, Source, LoadType, PlayerLoop, WeakMapAdapter } = require('../dist');
 
 /**
  * Bot configuration
@@ -44,6 +44,13 @@ const config = {
   options: {
     queueStartIndex: 1,
   },
+  cache: {
+    adapter: WeakMapAdapter,
+    options: {
+      revalidate: true,
+      ttl: 1000 * 60 * 5, // 5 minutes
+    }
+  }
 };
 
 /**
@@ -99,6 +106,7 @@ const manager = new LilyManager({
     }
   },
   options: config.options,
+  
 });
 
 client.manager = manager;
@@ -166,6 +174,14 @@ manager.on('queueEnd', (player) => {
   }
 });
 
+manager.on('cacheInitialized', () => {
+  console.log('Cache initialized!');
+});
+
+manager.on('cacheSet', ([key]) => {
+  console.log(`Cache set: ${key}`);
+});
+
 /**
  * Command handlers for music playback and queue management
  * @type {Object.<string, Function>}
@@ -186,6 +202,8 @@ const commands = {
         textChannelId: message.channel.id,
         autoPlay: true,
       });
+
+      player.setAutoPlay(false);
 
       if (!player.connected) {
         await player.connect({ setDeaf: true });
