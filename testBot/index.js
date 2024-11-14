@@ -41,6 +41,9 @@ const config = {
       identifier: 'main',
     },
   ],
+  options: {
+    queueStartIndex: 1,
+  },
 };
 
 /**
@@ -95,6 +98,7 @@ const manager = new LilyManager({
       guild.shard.send(JSON.parse(payload));
     }
   },
+  options: config.options,
 });
 
 client.manager = manager;
