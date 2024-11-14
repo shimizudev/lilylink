@@ -66,15 +66,33 @@ export class LilyRestHandler {
   public url: string | null = null;
   public defaultHeaders: Record<string, string> | null = null;
 
+  private get cacheKey() {
+    return `rest:${this.node?.identifier ?? this.node?.host}`;
+  }
+
   private async makeRequest<T>(
     url: string,
     options: RequestInit = {},
-    json = true
+    json = true,
+    cache = true
   ) {
+    const cacheKey = `${this.cacheKey}:${url}`;
+    const manager = this.node?.manager;
+
+    if (cache && options.method === 'GET' && manager?.cache) {
+      const cached = await manager.cache.get<T>(cacheKey);
+      if (cached) { return cached; }
+    }
+
     const [res, error] = await lilyRequest<T>(url, options, json);
     if (error) {
       throw error;
     }
+
+    if (cache && options.method === 'GET' && manager?.cache) {
+      await manager.cache.set(cacheKey, res);
+    }
+
     return res;
   }
 
@@ -102,12 +120,24 @@ export class LilyRestHandler {
     const params = new URLSearchParams();
     params.set('identifier', identifier);
 
-    const res = await this.makeRequest<RESTLoadTracks>(
+    const cacheKey = `${this.cacheKey}:loadTracks:${identifier}`;
+    const manager = this.node?.manager;
+
+    if (manager?.cache) {
+      return manager.cache.revalidate<RESTLoadTracks | undefined>(cacheKey, async () => {
+        return this.makeRequest<RESTLoadTracks>(
+          `${this.url}/loadtracks?${params.toString()}`,
+          { headers: this.defaultHeaders as HeadersInit },
+          true,
+          false // Don't cache in makeRequest since we're using revalidate
+        );
+      });
+    }
+
+    return this.makeRequest<RESTLoadTracks>(
       `${this.url}/loadtracks?${params.toString()}`,
       { headers: this.defaultHeaders as HeadersInit }
     );
-
-    return res;
   }
 
   public async update<T>(data: RESTOptions) {
@@ -117,8 +147,16 @@ export class LilyRestHandler {
         method: 'PATCH',
         body: JSON.stringify(data.data),
         headers: this.defaultHeaders as HeadersInit,
-      }
+      },
+      true,
+      false // Don't cache mutations
     );
+
+    // Invalidate related caches
+    if (this.node?.manager?.cache) {
+      const playerCacheKey = `${this.cacheKey}:player:${data.guildId}`;
+      await this.node.manager.cache.delete(playerCacheKey);
+    }
 
     return res;
   }
@@ -133,21 +171,47 @@ export class LilyRestHandler {
       false
     );
 
+    // Invalidate related caches
+    if (this.node?.manager?.cache) {
+      const playerCacheKey = `${this.cacheKey}:player:${guildId}`;
+      await this.node.manager.cache.delete(playerCacheKey);
+    }
+
     return res;
   }
+
   public getInfo<T>() {
     return this.makeRequest<T>(`${this.url}/info`, {
       method: 'GET',
       headers: this.defaultHeaders as HeadersInit,
     });
   }
+
   public getStats<T>(): Promise<unknown> {
     return this.makeRequest<T>(`${this.url}/stats`, {
       method: 'GET',
       headers: this.defaultHeaders as HeadersInit,
     });
   }
+
   public getVersion<T>(): Promise<unknown> {
+    const cacheKey = `${this.cacheKey}:version`;
+    const manager = this.node?.manager;
+
+    if (manager?.cache) {
+      return manager.cache.revalidate<T | undefined>(cacheKey, () => {
+        return this.makeRequest<T>(
+          `http${this.node?.secure ? 's' : ''}://${this.node?.address}/version`,
+          {
+            method: 'GET',
+            headers: this.defaultHeaders as HeadersInit,
+          },
+          true,
+          false
+        );
+      });
+    }
+
     return this.makeRequest<T>(
       `http${this.node?.secure ? 's' : ''}://${this.node?.address}/version`,
       {
@@ -156,7 +220,25 @@ export class LilyRestHandler {
       }
     );
   }
+
   public async decodeTrack<T>(encodedTrack: string) {
+    const cacheKey = `${this.cacheKey}:decode:${encodedTrack}`;
+    const manager = this.node?.manager;
+
+    if (manager?.cache) {
+      return manager.cache.revalidate<T | undefined>(cacheKey, () => {
+        return this.makeRequest<T>(
+          `${this.url}/decodetrack?encodedTrack=${encodeURIComponent(encodedTrack)}`,
+          {
+            method: 'GET',
+            headers: this.defaultHeaders as HeadersInit,
+          },
+          true,
+          false
+        );
+      });
+    }
+
     return this.makeRequest<T>(
       `${this.url}/decodetrack?encodedTrack=${encodeURIComponent(encodedTrack)}`,
       {
@@ -165,20 +247,63 @@ export class LilyRestHandler {
       }
     );
   }
+
   public async decodeTracks<T>(encodedTracks: string[]) {
     return this.makeRequest<T>(`${this.url}/decodetracks`, {
       method: 'POST',
       body: JSON.stringify(encodedTracks),
       headers: this.defaultHeaders as HeadersInit,
-    });
+    },
+    true,
+    false // Don't cache POST requests
+    );
   }
+
   public async getPlayers<T>(sessionId: string) {
-    return this.makeRequest<T>(`${this.url}/sessions/${sessionId}/players`, {
-      method: 'GET',
-      headers: this.defaultHeaders as HeadersInit,
-    });
+    const cacheKey = `${this.cacheKey}:players:${sessionId}`;
+    const manager = this.node?.manager;
+
+    if (manager?.cache) {
+      return manager.cache.revalidate<T | undefined>(cacheKey, () => {
+        return this.makeRequest<T>(
+          `${this.url}/sessions/${sessionId}/players`,
+          {
+            method: 'GET',
+            headers: this.defaultHeaders as HeadersInit,
+          },
+          true,
+          false
+        );
+      });
+    }
+
+    return this.makeRequest<T>(
+      `${this.url}/sessions/${sessionId}/players`,
+      {
+        method: 'GET',
+        headers: this.defaultHeaders as HeadersInit,
+      }
+    );
   }
+
   public async getPlayer<T>(sessionId: string, guildId: string) {
+    const cacheKey = `${this.cacheKey}:player:${guildId}`;
+    const manager = this.node?.manager;
+
+    if (manager?.cache) {
+      return manager.cache.revalidate<T | undefined>(cacheKey, () => {
+        return this.makeRequest<T>(
+          `${this.url}/sessions/${sessionId}/players/${guildId}`,
+          {
+            method: 'GET',
+            headers: this.defaultHeaders as HeadersInit,
+          },
+          true,
+          false
+        );
+      });
+    }
+
     return this.makeRequest<T>(
       `${this.url}/sessions/${sessionId}/players/${guildId}`,
       {
@@ -187,23 +312,56 @@ export class LilyRestHandler {
       }
     );
   }
+
   public async getRoutePlannerStatus<T>() {
-    return this.makeRequest<T>(`${this.url}/routeplanner/status`, {
-      method: 'GET',
-      headers: this.defaultHeaders as HeadersInit,
-    });
+    const cacheKey = `${this.cacheKey}:routeplanner:status`;
+    const manager = this.node?.manager;
+
+    if (manager?.cache) {
+      return manager.cache.revalidate<T | undefined>(cacheKey, () => {
+        return this.makeRequest<T>(
+          `${this.url}/routeplanner/status`,
+          {
+            method: 'GET',
+            headers: this.defaultHeaders as HeadersInit,
+          },
+          true,
+          false
+        );
+      });
+    }
+
+    return this.makeRequest<T>(
+      `${this.url}/routeplanner/status`,
+      {
+        method: 'GET',
+        headers: this.defaultHeaders as HeadersInit,
+      }
+    );
   }
+
   public async unmarkFailedAddress<T>(address: string) {
-    return this.makeRequest<T>(`${this.url}/routeplanner/free/address`, {
-      method: 'POST',
-      body: JSON.stringify({ address }),
-      headers: this.defaultHeaders as HeadersInit,
-    });
+    return this.makeRequest<T>(
+      `${this.url}/routeplanner/free/address`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ address }),
+        headers: this.defaultHeaders as HeadersInit,
+      },
+      true,
+      false // Don't cache POST requests
+    );
   }
+
   public async unmarkAllFailedAddresses<T>() {
-    return this.makeRequest<T>(`${this.url}/routeplanner/free/all`, {
-      method: 'POST',
-      headers: this.defaultHeaders as HeadersInit,
-    });
+    return this.makeRequest<T>(
+      `${this.url}/routeplanner/free/all`,
+      {
+        method: 'POST',
+        headers: this.defaultHeaders as HeadersInit,
+      },
+      true,
+      false // Don't cache POST requests
+    );
   }
 }
