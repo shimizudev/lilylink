@@ -53,6 +53,10 @@ export class LilyPlayer {
   public node!: LilyNode;
   public data: Record<string, unknown> = {};
 
+  private get cacheKey() {
+    return `player:${this.guildId}`;
+  }
+
   constructor(manager: LilyManager, config: PlayerConfig) {
     this.manager = manager;
     this.guildId = config.guildId;
@@ -70,10 +74,99 @@ export class LilyPlayer {
     this.autoLeave = config.autoLeave || false;
     this.queue = new LilyQueue(config.queueStartIndex ?? 0);
     this.node = this.manager.nodes.get(config.node as string) as LilyNode;
+
+    this.cacheState();
+  }
+
+  private async cacheState(): Promise<void> {
+    if (!this.manager.cache) { return; }
+
+    const state = {
+      guildId: this.guildId,
+      voiceChannelId: this.voiceChannelId,
+      textChannelId: this.textChannelId,
+      voiceState: this.voiceState,
+      autoPlay: this.autoPlay,
+      autoLeave: this.autoLeave,
+      connected: this.connected,
+      playing: this.playing,
+      paused: this.paused,
+      volume: this.volume,
+      loop: this.loop,
+      current: this.current,
+      previous: this.previous,
+      ping: this.ping,
+      queue: Array.from(this.queue.values()),
+      nodeId: this.node.identifier ?? this.node.host,
+      data: this.data,
+    };
+
+    await this.manager.cache.set(`${this.cacheKey}:state`, state);
+  }
+
+  private async invalidateCache(): Promise<void> {
+    if (!this.manager.cache) { return; }
+    await this.manager.cache.delete(`${this.cacheKey}:state`);
+  }
+
+  public async restoreState(): Promise<boolean> {
+    if (!this.manager.cache) { return false; }
+
+    const state = await this.manager.cache.get<{
+      guildId: string;
+      voiceChannelId: string;
+      textChannelId: string;
+      voiceState: VoiceState;
+      autoPlay: boolean;
+      autoLeave: boolean;
+      connected: boolean;
+      playing: boolean;
+      paused: boolean;
+      volume: number;
+      loop: PlayerLoop;
+      current: LilyTrack | null;
+      previous: LilyTrack | LilyTrack[] | null;
+      ping: number;
+      queue: LilyTrack[];
+      nodeId: string;
+      data: Record<string, unknown>;
+    }>(`${this.cacheKey}:state`);
+
+    if (!state) { return false; }
+
+    this.voiceChannelId = state.voiceChannelId;
+    this.textChannelId = state.textChannelId;
+    this.voiceState = state.voiceState;
+    this.autoPlay = state.autoPlay;
+    this.autoLeave = state.autoLeave;
+    this.connected = state.connected;
+    this.playing = state.playing;
+    this.paused = state.paused;
+    this.volume = state.volume;
+    this.loop = state.loop;
+    this.current = state.current;
+    this.previous = state.previous;
+    this.ping = state.ping;
+    this.data = state.data;
+
+    this.queue.clear();
+    for (const track of state.queue) {
+      this.queue.add(track);
+    }
+
+    if (this.node.identifier !== state.nodeId && this.node.host !== state.nodeId) {
+      const newNode = this.manager.nodes.get(state.nodeId);
+      if (newNode) {
+        this.node = newNode;
+      }
+    }
+
+    return true;
   }
 
   public set(key: string, data: unknown): void {
     this.data[key] = data;
+    this.cacheState();
   }
 
   public get<T>(key: string): T {
@@ -96,6 +189,7 @@ export class LilyPlayer {
       oldVoiceChannelId,
       voiceChannelId
     );
+    this.cacheState();
     return true;
   }
 
@@ -109,6 +203,7 @@ export class LilyPlayer {
       oldTextChannelId,
       textChannelId
     );
+    this.cacheState();
     return true;
   }
 
@@ -117,6 +212,7 @@ export class LilyPlayer {
 
     this.autoPlay = autoPlay;
     this.manager.emit('playerAutoPlaySet', this, autoPlay);
+    this.cacheState();
     return true;
   }
 
@@ -125,6 +221,7 @@ export class LilyPlayer {
 
     this.autoLeave = autoLeave;
     this.manager.emit('playerAutoLeaveSet', this, autoLeave);
+    this.cacheState();
     return true;
   }
 
@@ -144,6 +241,7 @@ export class LilyPlayer {
 
     this.connected = true;
     this.manager.emit('playerConnected', this);
+    this.cacheState();
     return true;
   }
 
@@ -163,6 +261,7 @@ export class LilyPlayer {
 
     this.connected = false;
     this.manager.emit('playerDisconnected', this);
+    this.cacheState();
     return true;
   }
 
@@ -185,6 +284,7 @@ export class LilyPlayer {
 
     this.playing = true;
     this.manager.emit('playerTriggeredPlay', this, this.current);
+    this.cacheState();
     return true;
   }
 
@@ -202,6 +302,7 @@ export class LilyPlayer {
 
     this.paused = true;
     this.manager.emit('playerTriggeredPause', this);
+    this.cacheState();
     return true;
   }
 
@@ -219,6 +320,7 @@ export class LilyPlayer {
 
     this.paused = false;
     this.manager.emit('playerTriggeredResume', this);
+    this.cacheState();
     return true;
   }
 
@@ -242,6 +344,7 @@ export class LilyPlayer {
 
     this.playing = false;
     this.manager.emit('playerTriggeredStop', this);
+    this.cacheState();
     return true;
   }
 
@@ -292,6 +395,7 @@ export class LilyPlayer {
       this.current as LilyTrack,
       position ?? 0
     );
+    this.cacheState();
     return true;
   }
 
@@ -313,6 +417,7 @@ export class LilyPlayer {
     });
 
     this.manager.emit('playerTriggeredSeek', this, position);
+    this.cacheState();
     return true;
   }
 
@@ -329,6 +434,7 @@ export class LilyPlayer {
       oldQueue,
       Array.from(this.queue.values())
     );
+    this.cacheState();
     return true;
   }
 
@@ -345,6 +451,7 @@ export class LilyPlayer {
     });
 
     this.manager.emit('playerChangedVolume', this, oldVolume, volume);
+    this.cacheState();
     return true;
   }
 
@@ -359,6 +466,7 @@ export class LilyPlayer {
 
     this.loop = loop;
     this.manager.emit('playerChangedLoop', this, oldLoop, loop);
+    this.cacheState();
     return true;
   }
 
@@ -368,6 +476,7 @@ export class LilyPlayer {
     }
     this.queue.clear();
     this.manager.players.delete(this.guildId);
+    this.invalidateCache();
 
     this.manager.emit('playerDestroyed', this);
     return true;
