@@ -354,7 +354,7 @@ export class LilyNode {
       return;
     }
 
-    if (player.loop === 'queue') {
+    if (player.loop === 'queue' && player.current) {
       await this.handleQueueLoop(player);
       return;
     }
@@ -369,14 +369,14 @@ export class LilyNode {
       return;
     }
 
-    if (player.autoLeave) {
-      player.destroy();
-      return;
-    }
-
     if (!player.queue.size) {
       player.current = null;
-      player.queue.clear();
+      this.manager?.emit('queueEnd', player);
+
+      if (player.autoLeave) {
+        player.destroy();
+        return;
+      }
     }
   }
 
@@ -415,21 +415,33 @@ export class LilyNode {
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     payload: any
   ): Promise<void> {
-    const uri = `https://www.youtube.com/watch?v=${player.current?.identifier}&list=RD${player.current?.identifier}`;
-    const res = await this.manager?.search({ query: uri });
-
-    if (payload.reason === 'stopped') {
+    if (payload.reason === 'stopped' || !player.autoPlay) {
       return;
     }
 
-    if (!res?.tracks || ['loadFailed', 'cleanup'].includes(res.loadType)) {
-      return;
-    }
+    try {
+      const uri = `https://www.youtube.com/watch?v=${player.current?.identifier}&list=RD${player.current?.identifier}`;
+      const res = await this.manager?.search({ query: uri });
 
-    const randomTrack =
-      res.tracks[Math.floor(Math.random() * res.tracks.length)];
-    player.queue.add(randomTrack as LilyTrack);
-    player.play();
+      if (!res?.tracks || ['loadFailed', 'cleanup'].includes(res.loadType)) {
+        return;
+      }
+
+      const filteredTracks = res.tracks.filter(
+        (track) => track.identifier !== player.current?.identifier
+      );
+
+      if (filteredTracks.length === 0) {
+        return;
+      }
+
+      const randomTrack =
+        filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
+      player.queue.add(randomTrack as LilyTrack);
+      player.play();
+    } catch (error) {
+      console.error('AutoPlay error:', error);
+    }
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
