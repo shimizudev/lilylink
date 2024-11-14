@@ -15,6 +15,7 @@ import { LilyTrack, type LilyTrack as Track } from '../models/track';
 import { version } from '../utils';
 import type { LilyNodeManager as NodeManager } from './node-manager';
 import type { LilyPlayerManager as PlayerManager } from './player-manager';
+import { type CacheAdapter, MapAdapter } from '../cache';
 
 enum TrackEndReason {
   QueueEnd = 'queueEnd',
@@ -50,6 +51,13 @@ interface ManagerOptions {
   readonly plugins?: readonly Plugin[];
   readonly previousInArray?: boolean;
   readonly queueStartIndex?: number;
+  readonly cache?: {
+    adapter?: CacheAdapter;
+    options?: {
+      ttl?: number;
+      revalidate?: boolean;
+    };
+  };
 }
 
 interface PlaylistInfo {
@@ -166,6 +174,14 @@ interface Events {
   readonly queueEnd: (player: Player) => void;
 }
 
+interface CacheEventMap {
+  readonly cacheInitialized: [];
+  readonly cacheExpired: [key: string];
+  readonly cacheSet: [key: string, value: unknown];
+  readonly cacheDelete: [key: string];
+  readonly cacheClear: [];
+}
+
 export class LilyManager extends EventEmitter {
   public readonly version = version;
   private initialized = false;
@@ -176,6 +192,7 @@ export class LilyManager extends EventEmitter {
   ) => Promise<void>;
   public readonly nodes: NodeManager;
   public readonly players: PlayerManager;
+  public readonly cache: CacheAdapter;
 
   constructor(config: Readonly<ManagerConfig>) {
     super();
@@ -186,6 +203,9 @@ export class LilyManager extends EventEmitter {
       defaultPlatformSearch: Source.YOUTUBE,
       ...config.options,
     });
+
+    this.cache = this.options.cache?.adapter ?? new MapAdapter(this.options.cache?.options);
+    this.bindCacheEvents();
 
     const NodeManagerClass = Structure.get('NodeManager');
     // @ts-expect-error: This is flower.
@@ -202,7 +222,28 @@ export class LilyManager extends EventEmitter {
     }
   }
 
-  public init(clientId: string): void {
+  private bindCacheEvents(): void {
+    this.cache.on('cacheInitialized', () => {
+      this.emit('cacheInitialized', []);
+    });
+
+    this.cache.on('cacheExpired', (key: string) => {
+      this.emit('cacheExpired', [key]);
+    });
+    this.cache.on('cacheSet', (key: string, value: unknown) => {
+      this.emit('cacheSet', [key, value]);
+    });
+
+    this.cache.on('cacheDelete', (key: string) => {
+      this.emit('cacheDelete', [key]);
+    });
+
+    this.cache.on('cacheClear', () => {
+      this.emit('cacheClear', []);
+    });
+  }
+
+  public async init(clientId: string): Promise<void> {
     if (this.initialized) {
       return;
     }
@@ -212,6 +253,7 @@ export class LilyManager extends EventEmitter {
       clientId,
     });
 
+    await this.cache.init();
     this.nodes.init();
     this.initialized = true;
   }
@@ -351,13 +393,24 @@ export class LilyManager extends EventEmitter {
   }
 
   // Type-safe event methods
-  public on<T extends keyof Events>(event: T, listener: Events[T]): this {
+  public on<T extends keyof (Events & CacheEventMap)>(
+    event: T,
+    listener: T extends keyof Events 
+      ? Events[T] 
+      : T extends keyof CacheEventMap 
+      ? ((...args: CacheEventMap[T] extends undefined ? [] : [CacheEventMap[T]]) => void)
+      : never
+  ): this {
     return super.on(event, listener);
   }
 
-  public emit<T extends keyof Events>(
+  public emit<T extends keyof (Events & CacheEventMap)>(
     event: T,
-    ...args: Parameters<Events[T]>
+    ...args: T extends keyof Events
+      ? Parameters<Events[T]>
+      : T extends keyof CacheEventMap
+      ? CacheEventMap[T] extends undefined ? [] : [CacheEventMap[T]]
+      : never
   ): boolean {
     return super.emit(event, ...args);
   }
