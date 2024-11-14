@@ -164,6 +164,7 @@ interface Events {
     reason: string,
     byRemote: boolean
   ) => void;
+  readonly queueEnd: (player: Player) => void;
 }
 
 export class LilyManager extends EventEmitter {
