@@ -48,8 +48,6 @@ interface ManagerOptions {
   readonly clientId?: string;
   readonly defaultPlatformSearch?: Source;
   readonly plugins?: readonly Plugin[];
-  readonly noReplace?: boolean;
-  readonly nodeLinkFeatures?: boolean;
   readonly previousInArray?: boolean;
   readonly queueStartIndex?: number;
 }
