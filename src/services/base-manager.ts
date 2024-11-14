@@ -51,6 +51,7 @@ interface ManagerOptions {
   readonly noReplace?: boolean;
   readonly nodeLinkFeatures?: boolean;
   readonly previousInArray?: boolean;
+  readonly queueStartIndex?: number;
 }
 
 interface PlaylistInfo {

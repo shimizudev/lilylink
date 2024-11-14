@@ -61,7 +61,8 @@
         "useBlockStatements": "error",
         "useShorthandArrayType": "error",
         "useTemplate": "error",
-        "noShoutyConstants": "error"
+        "noShoutyConstants": "error",
+        "noNonNullAssertion": "off"
       },
       "suspicious": {
         "recommended": true,

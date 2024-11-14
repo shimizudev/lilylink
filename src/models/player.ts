@@ -21,6 +21,7 @@ export interface PlayerConfig {
   autoPlay?: boolean;
   autoLeave?: boolean;
   node?: string;
+  queueStartIndex?: number;
 }
 
 export enum PlayerState {
@@ -67,7 +68,7 @@ export class LilyPlayer {
     this.loop = config.loop || PlayerLoop.OFF;
     this.autoPlay = config.autoPlay || false;
     this.autoLeave = config.autoLeave || false;
-    this.queue = new LilyQueue();
+    this.queue = new LilyQueue(config.queueStartIndex ?? 0);
     this.node = this.manager.nodes.get(config.node as string) as LilyNode;
   }
 

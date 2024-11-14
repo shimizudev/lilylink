@@ -13,12 +13,22 @@ export class LilyQueue {
   private head: QueueNode | null;
   private tail: QueueNode | null;
   private nodeCount: number;
+  private startIndex: number;
 
-  constructor() {
+  constructor(startIndex = 0) {
     this.tracks = new Set<LilyTrack>();
     this.head = null;
     this.tail = null;
     this.nodeCount = 0;
+    this.startIndex = Math.max(0, startIndex);
+  }
+
+  public setStartIndex(index: number): void {
+    this.startIndex = Math.max(0, index);
+  }
+
+  public getStartIndex(): number {
+    return this.startIndex;
   }
 
   public add(track: LilyTrack): boolean {
@@ -26,7 +36,6 @@ export class LilyQueue {
       const node = new QueueNode(track);
       if (this.head) {
         node.prev = this.tail;
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
         this.tail!.next = node;
         this.tail = node;
       } else {
@@ -42,16 +51,15 @@ export class LilyQueue {
   }
 
   public get(position: number): LilyTrack {
-    if (position < 0 || position >= this.nodeCount) {
+    const adjustedPosition = position - this.startIndex;
+    if (adjustedPosition < 0 || adjustedPosition >= this.nodeCount) {
       throw new Error('Position out of bounds');
     }
 
     let current = this.head;
-    for (let i = 0; i < position; i++) {
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    for (let i = 0; i < adjustedPosition; i++) {
       current = current!.next;
     }
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     return current!.value;
   }
 
@@ -60,36 +68,29 @@ export class LilyQueue {
   }
 
   public remove(position: number): boolean {
-    if (position < 0 || position >= this.nodeCount) {
+    const adjustedPosition = position - this.startIndex;
+    if (adjustedPosition < 0 || adjustedPosition >= this.nodeCount) {
       return false;
     }
 
     let current = this.head;
-    for (let i = 0; i < position; i++) {
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    for (let i = 0; i < adjustedPosition; i++) {
       current = current!.next;
     }
 
     if (current === this.head) {
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       this.head = current!.next;
     }
     if (current === this.tail) {
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       this.tail = current!.prev;
     }
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     if (current!.prev) {
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       current!.prev.next = current!.next;
     }
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     if (current!.next) {
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       current!.next.prev = current!.prev;
     }
 
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     this.tracks.delete(current!.value);
     this.nodeCount--;
     return true;
@@ -167,7 +168,6 @@ export class LilyQueue {
       return true;
     }
 
-    // Fisher-Yates shuffle using linked list
     const positions: QueueNode[] = [];
     let current = this.head;
     while (current) {
@@ -193,26 +193,30 @@ export class LilyQueue {
   public *values(): IterableIterator<LilyTrack> {
     let current = this.head;
     while (current) {
-      yield current.value;
+      yield { ...current.value };
       current = current.next;
     }
   }
 
-  public forEach(callbackfn: (value: LilyTrack) => void): void {
+  public forEach(callbackfn: (value: LilyTrack, index: number) => void): void {
     let current = this.head;
+    let index = this.startIndex;
     while (current) {
-      callbackfn(current.value);
+      callbackfn(current.value, index);
       current = current.next;
+      index++;
     }
   }
 
-  public map<T>(callbackfn: (value: LilyTrack) => T): T[] {
+  public map<T>(callbackfn: (value: LilyTrack, index: number) => T): T[] {
     const result: T[] = new Array(this.nodeCount);
     let current = this.head;
-    let index = 0;
+    let arrayIndex = 0;
+    let queueIndex = this.startIndex;
     while (current) {
-      result[index++] = callbackfn(current.value);
+      result[arrayIndex++] = callbackfn(current.value, queueIndex);
       current = current.next;
+      queueIndex++;
     }
     return result;
   }
