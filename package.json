@@ -1,7 +1,7 @@
 {
   "name": "lilylink",
   "version": "1.0.0",
-  "description": "A memory-safe lavalink client with enhanced performance.",
+  "description": "A fork of a memory-safe lavalink client with enhanced performance.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.mjs",
@@ -16,15 +16,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/devaoto/lilylink.git"
+    "url": "git+https://github.com/ayaweeb/lilylink.git"
   },
   "keywords": ["Lilylink", "Lavalink", "Lavalink", "Client", "Music"],
-  "author": "Mohtasim Alam Sohom <sohom829@gmail.com>",
+  "author": "Lovely Aya <maria7892020@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/devaoto/lilylink/issues"
+    "url": "https://github.com/ayaweeb/lilylink/issues"
   },
-  "homepage": "https://github.com/devaoto/lilylink#readme",
+  "homepage": "https://github.com/ayaweeb/lilylink#readme",
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/node": "^22.9.0",
