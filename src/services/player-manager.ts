@@ -11,6 +11,7 @@ export class LilyPlayerManager {
   constructor(manager: LilyManager) {
     this.manager = manager;
   }
+
   public create(config: PlayerConfig): LilyPlayer | undefined {
     validate(config.guildId, z.string(), 'guildId is required');
 
@@ -18,8 +19,22 @@ export class LilyPlayerManager {
       return this.get(config.guildId);
     }
 
-    validate(config.voiceChannelId, z.string(), 'voiceChannelId is required');
-    validate(config.textChannelId, z.string(), 'textChannelId is required');
+    validate(
+      config.voiceChannelId,
+      z.string().or(z.undefined()),
+      'voiceChannelId is invalid'
+    );
+    validate(
+      config.textChannelId,
+      z.string().or(z.undefined()),
+      'textChannelId is invalid'
+    );
+    validate(
+      config.voiceId,
+      z.string().or(z.undefined()),
+      'voiceId is invalid'
+    );
+    validate(config.textId, z.string().or(z.undefined()), 'textId is invalid');
     validate(
       config.volume,
       z.number().min(0).max(100).optional().default(50),

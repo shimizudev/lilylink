@@ -14,8 +14,12 @@ export enum PlayerLoop {
 
 export interface PlayerConfig {
   guildId: string;
-  voiceChannelId: string;
-  textChannelId: string;
+  /** @deprecated Use voiceId instead */
+  voiceChannelId?: string;
+  /** @deprecated Use textId instead */
+  textChannelId?: string;
+  voiceId?: string;
+  textId?: string;
   volume?: number;
   loop?: PlayerLoop;
   autoPlay?: boolean;
@@ -45,7 +49,7 @@ export class LilyPlayer {
   public playing!: boolean;
   public paused!: boolean;
   public volume = 80;
-  public loop: PlayerLoop = PlayerLoop.OFF;
+  public loop: PlayerLoop | keyof typeof PlayerLoop = PlayerLoop.OFF;
   public current: LilyTrack | null = null;
   public previous: LilyTrack | LilyTrack[] | null = null;
   public ping = 0;
@@ -60,8 +64,8 @@ export class LilyPlayer {
   constructor(manager: LilyManager, config: PlayerConfig) {
     this.manager = manager;
     this.guildId = config.guildId;
-    this.voiceChannelId = config.voiceChannelId;
-    this.textChannelId = config.textChannelId;
+    this.voiceChannelId = config.voiceId ?? config.voiceChannelId!;
+    this.textChannelId = config.textId ?? config.textChannelId!;
     this.connected = false;
     this.playing = false;
     this.paused = false;
@@ -129,7 +133,7 @@ export class LilyPlayer {
       playing: boolean;
       paused: boolean;
       volume: number;
-      loop: PlayerLoop;
+      loop: PlayerLoop | keyof typeof PlayerLoop;
       current: LilyTrack | null;
       previous: LilyTrack | LilyTrack[] | null;
       ping: number;
@@ -466,14 +470,14 @@ export class LilyPlayer {
     return true;
   }
 
-  public setLoop(loop: PlayerLoop): boolean {
+  public setLoop(loop: PlayerLoop | keyof typeof PlayerLoop): boolean {
     validate(
       loop,
       z.enum([PlayerLoop.TRACK, PlayerLoop.QUEUE, PlayerLoop.OFF]),
       'Loop is invalid',
       TypeError
     );
-    const oldLoop: PlayerLoop = this.loop;
+    const oldLoop: PlayerLoop | keyof typeof PlayerLoop = this.loop;
 
     this.loop = loop;
     this.manager.emit('playerChangedLoop', this, oldLoop, loop);
