@@ -15,7 +15,7 @@ import { LilyTrack, type LilyTrack as Track } from '../models/track';
 import { version } from '../utils';
 import type { LilyNodeManager as NodeManager } from './node-manager';
 import type { LilyPlayerManager as PlayerManager } from './player-manager';
-import { type CacheAdapter, MapAdapter } from '../cache';
+import { type CacheAdapter, WeakMapAdapter } from '../cache';
 
 enum TrackEndReason {
   QueueEnd = 'queueEnd',
@@ -211,7 +211,7 @@ export class LilyManager extends EventEmitter {
       ...config.options,
     });
 
-    this.cache = this.options.cache?.adapter ?? new MapAdapter(this.options.cache?.options);
+    this.cache = this.options.cache?.adapter ?? new WeakMapAdapter(this.options.cache?.options);
     this.bindCacheEvents();
     const NodeManagerClass = Registry.get('NodeManager');
     this.nodes = new NodeManagerClass(this, [...config.nodes]);
