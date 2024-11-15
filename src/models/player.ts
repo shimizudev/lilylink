@@ -204,7 +204,7 @@ export class LilyPlayer {
     return true;
   }
 
-  public setTextChannelId(textChannelId: string): boolean {
+  public setTextChannel(textChannelId: string): boolean {
     validate(textChannelId, z.string(), 'textChannelId is invalid', TypeError);
     const oldTextChannelId = String(this.textChannel);
     this.textChannel = textChannelId;

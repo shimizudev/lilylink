@@ -32,9 +32,7 @@ export class LilyTrack {
   public isrc?: string;
   public time?: number = 0;
   public sourceName?: string;
-  public requestedBy?: object = {
-    user_id: null,
-  };
+  public requestedBy?: string;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   constructor(trackData: Track, requester?: any) {
     this.encoded = trackData.encoded;
