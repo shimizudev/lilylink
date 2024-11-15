@@ -7,6 +7,7 @@ export enum Source {
   SOUNDCLOUD = 'scsearch',
   YOUTUBE_MUSIC = 'ytmsearch',
   SPOTIFY = 'spsearch',
+  BANDCAMP = 'bcsearch'
 }
 
 export enum LoadType {
@@ -113,7 +114,7 @@ export class LilyRestHandler {
   public async loadTracks(source: Source, query: string) {
     let identifier = '';
 
-    if (query.startsWith('http')) {
+    if (query.startsWith('https')) {
       identifier = query;
     } else {
       identifier = `${source}:${query}`;
