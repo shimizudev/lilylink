@@ -112,18 +112,18 @@ export class LilyRestHandler {
   }
 
   public async loadTracks(source: Source, query: string) {
-    let identifier = '';
+    const sources: Record<Source, string> = {
+      [Source.YOUTUBE]: 'ytsearch',
+      [Source.SOUNDCLOUD]: 'scsearch',
+      [Source.YOUTUBE_MUSIC]: 'ytmsearch',
+      [Source.SPOTIFY]: 'spsearch',
+      [Source.BANDCAMP]: 'bcsearch',
+    };
+    let searchIdentifier = query.startsWith("http://") || query.startsWith("https://") ? query : source ? sources[source] ? `${sources[source]}:${query}` : `${source}:${query}`: `ytsearch:${query}`;
 
-    if (query.startsWith('https')) {
-      identifier = query;
-    } else {
-      identifier = `${source}:${query}`;
-    }
+    const params = new URLSearchParams({identifier: searchIdentifier});
 
-    const params = new URLSearchParams();
-    params.set('identifier', identifier);
-
-    const cacheKey = `${this.cacheKey}:loadTracks:${identifier}`;
+    const cacheKey = `${this.cacheKey}:loadTracks:${searchIdentifier}`;
     const manager = this.node?.manager;
 
     if (manager?.cache) {
@@ -131,7 +131,7 @@ export class LilyRestHandler {
         cacheKey,
         async () => {
           return this.makeRequest<RESTLoadTracks>(
-            `${this.url}/loadtracks?${params.toString()}`,
+            `${this.url}/loadtracks?${params}`,
             { headers: this.defaultHeaders as HeadersInit },
             true,
             false // Don't cache in makeRequest since we're using revalidate
