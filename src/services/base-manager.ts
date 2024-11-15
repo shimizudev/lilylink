@@ -299,7 +299,7 @@ export class LilyManager extends EventEmitter {
 
     if (response?.loadType === LoadType.Track) {
       // @ts-expect-error: undefined error lol
-      response.data = [response.data];
+      response.data.tracks = [response.data];
     }
 
     if (response?.loadType === LoadType.Search) {
@@ -314,7 +314,7 @@ export class LilyManager extends EventEmitter {
         selectedTrack: response.data?.info.selectedTrack
       };
       //@ts-expect-error: undefined error lol
-      response.data = [...response.data?.tracks];
+      response.data.tracks = [...response.data];
     }
 
     const tracks = response?.data?.tracks?.map(
