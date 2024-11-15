@@ -18,8 +18,8 @@ export class LilyPlayerManager {
       return this.get(config.guildId);
     }
 
-    validate(config.voiceChannelId, z.string(), 'voiceChannelId is required');
-    validate(config.textChannelId, z.string(), 'textChannelId is required');
+    validate(config.voiceChannel, z.string(), 'voiceChannelId is required');
+    validate(config.textChannel, z.string(), 'textChannelId is required');
     validate(
       config.volume,
       z.number().min(0).max(100).optional().default(50),

@@ -125,12 +125,12 @@ interface Events {
   ) => void;
   readonly playerAutoPlaySet: (player: Player, autoPlay: boolean) => void;
   readonly playerAutoLeaveSet: (player: Player, autoLeave: boolean) => void;
-  readonly playerTextChannelIdSet: (
+  readonly playerTextChannelSet: (
     player: Player,
     oldChannel: string,
     newChannel: string
   ) => void;
-  readonly playerVoiceChannelIdSet: (
+  readonly playerVoiceChannelSet: (
     player: Player,
     oldChannel: string,
     newChannel: string
@@ -344,21 +344,21 @@ export class LilyManager extends EventEmitter {
       if (!packet.d.channel_id) {
         player.connected = false;
         player.playing = false;
-        player.voiceChannelId = '';
+        player.voiceChannel = '';
         player.voiceState = {};
 
         this.emit('playerDisconnected', player);
         return;
       }
 
-      if (packet.d.channel_id !== player.voiceChannelId) {
+      if (packet.d.channel_id !== player.voiceChannel) {
         this.emit(
           'playerMoved',
           player,
-          player.voiceChannelId,
+          player.voiceChannel,
           packet.d.channel_id
         );
-        player.voiceChannelId = packet.d.channel_id;
+        player.voiceChannel = packet.d.channel_id;
       }
 
       player.voiceState = {

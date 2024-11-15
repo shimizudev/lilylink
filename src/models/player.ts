@@ -14,8 +14,8 @@ export enum PlayerLoop {
 
 export interface PlayerConfig {
   guildId: string;
-  voiceChannelId: string;
-  textChannelId: string;
+  voiceChannel: string;
+  textChannel: string;
   volume?: number;
   loop?: PlayerLoop;
   autoPlay?: boolean;
@@ -36,8 +36,8 @@ export enum PlayerState {
 export class LilyPlayer {
   readonly manager!: LilyManager;
   public guildId!: string;
-  public voiceChannelId!: string;
-  public textChannelId!: string;
+  public voiceChannel!: string;
+  public textChannel!: string;
   public voiceState: VoiceState = {};
   public autoPlay!: boolean;
   public autoLeave!: boolean;
@@ -60,8 +60,8 @@ export class LilyPlayer {
   constructor(manager: LilyManager, config: PlayerConfig) {
     this.manager = manager;
     this.guildId = config.guildId;
-    this.voiceChannelId = config.voiceChannelId;
-    this.textChannelId = config.textChannelId;
+    this.voiceChannel = config.voiceChannel;
+    this.textChannel = config.textChannel;
     this.connected = false;
     this.playing = false;
     this.paused = false;
@@ -85,8 +85,8 @@ export class LilyPlayer {
 
     const state = {
       guildId: this.guildId,
-      voiceChannelId: this.voiceChannelId,
-      textChannelId: this.textChannelId,
+      voiceChannel: this.voiceChannel,
+      textChannel: this.textChannel,
       voiceState: this.voiceState,
       autoPlay: this.autoPlay,
       autoLeave: this.autoLeave,
@@ -120,8 +120,8 @@ export class LilyPlayer {
 
     const state = await this.manager.cache.get<{
       guildId: string;
-      voiceChannelId: string;
-      textChannelId: string;
+      voiceChannel: string;
+      textChannel: string;
       voiceState: VoiceState;
       autoPlay: boolean;
       autoLeave: boolean;
@@ -142,8 +142,8 @@ export class LilyPlayer {
       return false;
     }
 
-    this.voiceChannelId = state.voiceChannelId;
-    this.textChannelId = state.textChannelId;
+    this.voiceChannel = state.voiceChannel;
+    this.textChannel = state.textChannel;
     this.voiceState = state.voiceState;
     this.autoPlay = state.autoPlay;
     this.autoLeave = state.autoLeave;
@@ -184,18 +184,18 @@ export class LilyPlayer {
     return this.data[key] as T;
   }
 
-  public setVoiceChannelId(voiceChannelId: string): boolean {
+  public setVoiceChannel(voiceChannelId: string): boolean {
     validate(
       voiceChannelId,
       z.string(),
       'voiceChannelId is invalid',
       TypeError
     );
-    const oldVoiceChannelId = String(this.voiceChannelId);
+    const oldVoiceChannelId = String(this.voiceChannel);
 
-    this.voiceChannelId = voiceChannelId;
+    this.voiceChannel = voiceChannelId;
     this.manager.emit(
-      'playerVoiceChannelIdSet',
+      'playerVoiceChannelSet',
       this,
       oldVoiceChannelId,
       voiceChannelId
@@ -206,10 +206,10 @@ export class LilyPlayer {
 
   public setTextChannelId(textChannelId: string): boolean {
     validate(textChannelId, z.string(), 'textChannelId is invalid', TypeError);
-    const oldTextChannelId = String(this.textChannelId);
-    this.textChannelId = textChannelId;
+    const oldTextChannelId = String(this.textChannel);
+    this.textChannel = textChannelId;
     this.manager.emit(
-      'playerTextChannelIdSet',
+      'playerTextChannelSet',
       this,
       oldTextChannelId,
       textChannelId
@@ -243,7 +243,7 @@ export class LilyPlayer {
         op: 4,
         d: {
           guild_id: this.guildId,
-          channel_id: this.voiceChannelId,
+          channel_id: this.voiceChannel,
           self_mute: options?.setMute || false,
           self_deaf: options?.setDeaf || false,
         },
