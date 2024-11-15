@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Structure } from '../helpers/structure';
+import { Registry } from '../helpers/registry';
 import {
   type LilyNode,
   type LilyNodeOptions,
@@ -110,7 +110,7 @@ export class LilyNodeManager {
       throw new Error(`Node with identifier "${identifier}" already exists`);
     }
 
-    const NodeClass = Structure.get('Node');
+    const NodeClass = Registry.get('Node');
     const node = new NodeClass(this.manager, validatedOptions);
     this.cache.set(identifier, node);
 

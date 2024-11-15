@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { Structure } from '../helpers/structure';
+import { Registry } from '../helpers/registry';
 import type { LilyManager } from '../services/base-manager';
 import type { LilyPlayer } from './player';
 import { LilyRestHandler } from './rest';
@@ -318,15 +318,13 @@ export class LilyNode {
 
     if (this.manager?.options.previousInArray) {
       (player.previous as LilyTrack[]).push(
-        // @ts-expect-error: This is flower.
-        new (Structure.get('Track'))({
+        new (Registry.get('Track'))({
           ...payload.track,
           encoded: player.current?.encoded,
         })
       );
     } else {
-      // @ts-expect-error: This is flower.
-      player.previous = new (Structure.get('Track'))({
+      player.previous = new (Registry.get('Track'))({
         ...payload.track,
         encoded: player.current?.encoded,
       });

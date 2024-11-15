@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Structure } from '../helpers/structure';
+import { Registry } from '../helpers/registry';
 import { validate } from '../helpers/validate';
 import type { PlayerConfig } from '../models/player';
 import type { LilyPlayer } from '../models/player';
@@ -37,8 +37,7 @@ export class LilyPlayerManager {
       config.node = node.identifier ?? node.host;
     }
 
-    // @ts-expect-error: This is flower.
-    const player: LilyPlayer = new (Structure.get('Player'))(
+    const player: LilyPlayer = new (Registry.get('Player'))(
       this.manager,
       config
     );

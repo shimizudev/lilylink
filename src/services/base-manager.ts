@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { type Plugin, Structure } from '../helpers/structure';
+import { Plugin, Registry } from '../helpers/registry';
 import {
   LilyNodeState,
   type LilyNodeOptions as NodeOptions,
@@ -172,6 +172,9 @@ interface Events {
     byRemote: boolean
   ) => void;
   readonly queueEnd: (player: Player) => void;
+  readonly pluginLoaded: (pluginName: string) => void;
+  readonly pluginUnloaded: (pluginName: string) => void;
+  readonly pluginError: (pluginName: string, error: Error) => void;
 }
 
 interface CacheEventMap {
@@ -193,9 +196,13 @@ export class LilyManager extends EventEmitter {
   public readonly nodes: NodeManager;
   public readonly players: PlayerManager;
   public readonly cache: CacheAdapter;
+  private readonly registry: Registry;
 
   constructor(config: Readonly<ManagerConfig>) {
     super();
+
+    this.registry = Registry.getInstance();
+    this.registry.setManager(this);
 
     this.sendPayload = config.sendPayload;
     this.options = Object.freeze({
@@ -206,19 +213,17 @@ export class LilyManager extends EventEmitter {
 
     this.cache = this.options.cache?.adapter ?? new MapAdapter(this.options.cache?.options);
     this.bindCacheEvents();
+    const NodeManagerClass = Registry.get('NodeManager');
+    this.nodes = new NodeManagerClass(this, [...config.nodes]);
 
-    const NodeManagerClass = Structure.get('NodeManager');
-    // @ts-expect-error: This is flower.
-    this.nodes = new NodeManagerClass(this, config.nodes);
-
-    const PlayerManagerClass = Structure.get('PlayerManager');
-    // @ts-expect-error: This is flower.
+    const PlayerManagerClass = Registry.get('PlayerManager');
     this.players = new PlayerManagerClass(this);
 
+    // Load plugins
     if (this.options.plugins?.length) {
-      for (const plugin of this.options.plugins) {
-        plugin.load(this);
-      }
+      this.loadPlugins(this.options.plugins).catch((error) => {
+        console.error('Failed to load plugins:', error);
+      });
     }
   }
 
@@ -421,5 +426,25 @@ export class LilyManager extends EventEmitter {
 
   public off<T extends keyof Events>(event: T, listener: Events[T]): this {
     return super.off(event, listener);
+  }
+
+  private async loadPlugins(plugins: readonly Plugin[]): Promise<void> {
+    for (const plugin of plugins) {
+      if (plugin instanceof Plugin) {
+        try {
+          await this.registry.loadPlugin(plugin);
+        } catch (error) {
+          this.emit('pluginError', plugin.name, error as Error);
+        }
+      }
+    }
+  }
+
+  public async unloadPlugin(pluginName: string): Promise<void> {
+    await this.registry.unloadPlugin(pluginName);
+  }
+
+  public getLoadedPlugins(): string[] {
+    return this.registry.getLoadedPlugins();
   }
 }
