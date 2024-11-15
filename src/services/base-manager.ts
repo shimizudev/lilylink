@@ -298,7 +298,7 @@ export class LilyManager extends EventEmitter {
       return response as unknown as SearchResult;
     }
 
-    if (response?.loadType === LoadType.Track) {
+    if (response?.loadType && response?.loadType === LoadType.Track) {
       // @ts-expect-error: undefined error lol
       response.data.tracks = [response.data];
     }
@@ -307,25 +307,38 @@ export class LilyManager extends EventEmitter {
       // @ts-expect-error: undefined error lol
       response.data.tracks = response.data;
     }
-    if(response?.loadType === LoadType.Playlist) {
-      //@ts-expect-error: undefined error lol
-      response.playlistInfo = {
-        duration: response.data?.tracks?.reduce((acc, cur) => acc + cur.info.length, 0),
-        name: response.data?.info.name,
-        selectedTrack: response.data?.info.selectedTrack
-      };
-      //@ts-expect-error: undefined error lol
-      response.data = [...response.data.tracks];
-    }
+  if (response?.loadType && response.loadType === LoadType.Playlist) {
+  const playlistTracks = response.data.tracks || [];
+  const playlistDuration = playlistTracks.reduce((acc, track) => acc + (track.info.length || 0), 0);
+
+  const playlistInfo: PlaylistInfo = {
+    name: response.data.info.name,
+    selectedTrack: response.data.info.selectedTrack || -1,
+    duration: playlistDuration,
+  };
+
+  return {
+    loadType: response.loadType,
+    tracks: playlistTracks.map((track) => new LilyTrack(track, requester)),
+    playlistInfo,
+  } as SearchResult;
+}
 
     const tracks = response?.data?.tracks?.map(
       (track) => new LilyTrack(track, requester)
     );
 
     return Object.freeze({
-      ...response,
-      tracks: Object.freeze(tracks),
-    }) as unknown as SearchResult;
+      loadType: response?.loadType,
+      tracks: Object.freeze(tracks ?? []),
+      playlistInfo: response?.loadType === LoadType.Playlist
+        ? {
+            name: response.data.info.name,
+            selectedTrack: response.data.info.selectedTrack || -1,
+            duration: response.data.tracks?.reduce((acc, cur) => acc + (cur.info.length || 0), 0) || 0,
+          }
+        : undefined,
+    }) as SearchResult;
   }
 
   public async packetUpdate(packet: VoicePacket): Promise<void> {

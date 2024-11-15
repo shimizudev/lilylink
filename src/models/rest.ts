@@ -48,7 +48,7 @@ export interface RESTData {
 }
 export interface RESTLoadTracks {
   loadType: LoadType;
-  data?: LoadResultData;
+  data: LoadResultData;
 }
 
 export interface LoadResultData {
@@ -59,7 +59,8 @@ export interface LoadResultData {
 
 export interface PlaylistInfo {
   name: string;
-  selectedTrack?: number;
+  selectedTrack: number;
+  duration: number;
 }
 
 export class LilyRestHandler {
