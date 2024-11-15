@@ -62,7 +62,8 @@ interface ManagerOptions {
 
 interface PlaylistInfo {
   readonly name: string;
-  readonly selectedTrack?: number;
+  readonly selectedTrack: number;
+  readonly duration: number;
 }
 
 interface SearchResult {
