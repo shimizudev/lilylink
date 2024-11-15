@@ -79,7 +79,9 @@ export class LilyPlayer {
   }
 
   private async cacheState(): Promise<void> {
-    if (!this.manager.cache) { return; }
+    if (!this.manager.cache) {
+      return;
+    }
 
     const state = {
       guildId: this.guildId,
@@ -105,12 +107,16 @@ export class LilyPlayer {
   }
 
   private async invalidateCache(): Promise<void> {
-    if (!this.manager.cache) { return; }
+    if (!this.manager.cache) {
+      return;
+    }
     await this.manager.cache.delete(`${this.cacheKey}:state`);
   }
 
   public async restoreState(): Promise<boolean> {
-    if (!this.manager.cache) { return false; }
+    if (!this.manager.cache) {
+      return false;
+    }
 
     const state = await this.manager.cache.get<{
       guildId: string;
@@ -132,7 +138,9 @@ export class LilyPlayer {
       data: Record<string, unknown>;
     }>(`${this.cacheKey}:state`);
 
-    if (!state) { return false; }
+    if (!state) {
+      return false;
+    }
 
     this.voiceChannelId = state.voiceChannelId;
     this.textChannelId = state.textChannelId;
@@ -154,7 +162,10 @@ export class LilyPlayer {
       this.queue.add(track);
     }
 
-    if (this.node.identifier !== state.nodeId && this.node.host !== state.nodeId) {
+    if (
+      this.node.identifier !== state.nodeId &&
+      this.node.host !== state.nodeId
+    ) {
       const newNode = this.manager.nodes.get(state.nodeId);
       if (newNode) {
         this.node = newNode;

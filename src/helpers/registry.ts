@@ -22,9 +22,15 @@ export interface RegistryStructures {
 export class Registry {
   private static instance: Registry;
   private manager: LilyManager | undefined;
-  private structures: Map<keyof RegistryStructures, RegistryStructures[keyof RegistryStructures]>;
+  private structures: Map<
+    keyof RegistryStructures,
+    RegistryStructures[keyof RegistryStructures]
+  >;
   private plugins: Map<string, Plugin>;
-  private defaultStructures: Map<keyof RegistryStructures, RegistryStructures[keyof RegistryStructures]>;
+  private defaultStructures: Map<
+    keyof RegistryStructures,
+    RegistryStructures[keyof RegistryStructures]
+  >;
 
   private constructor() {
     this.structures = new Map();
@@ -33,9 +39,12 @@ export class Registry {
     this.registerDefaults();
   }
   private registerDefaults(): void {
-    const defaults: [keyof RegistryStructures, RegistryStructures[keyof RegistryStructures]][] = [
+    const defaults: [
+      keyof RegistryStructures,
+      RegistryStructures[keyof RegistryStructures],
+    ][] = [
       ['Node', LilyNode],
-      ['Rest', LilyRestHandler], 
+      ['Rest', LilyRestHandler],
       ['Player', LilyPlayer],
       ['Track', LilyTrack],
       ['Queue', LilyQueue],
@@ -122,12 +131,12 @@ export class Registry {
     try {
       await plugin.unload(this.manager!);
       this.plugins.delete(pluginName);
-      
+
       // Restore default structures that might have been modified by the plugin
       for (const [key, value] of this.defaultStructures) {
         this.structures.set(key, value);
       }
-      
+
       this.manager?.emit('pluginUnloaded', pluginName);
     } catch (error) {
       throw new Error(`Failed to unload plugin ${pluginName}: ${error}`);

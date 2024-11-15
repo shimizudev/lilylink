@@ -22,7 +22,13 @@ const {
   EmbedBuilder,
   ActivityType,
 } = require('discord.js');
-const { LilyManager, Source, LoadType, PlayerLoop, WeakMapAdapter } = require('../dist');
+const {
+  LilyManager,
+  Source,
+  LoadType,
+  PlayerLoop,
+  WeakMapAdapter,
+} = require('../dist');
 
 /**
  * Bot configuration
@@ -49,8 +55,8 @@ const config = {
     options: {
       revalidate: true,
       ttl: 1000 * 60 * 5, // 5 minutes
-    }
-  }
+    },
+  },
 };
 
 /**
@@ -106,7 +112,6 @@ const manager = new LilyManager({
     }
   },
   options: config.options,
-  
 });
 
 client.manager = manager;

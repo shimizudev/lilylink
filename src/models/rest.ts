@@ -81,7 +81,9 @@ export class LilyRestHandler {
 
     if (cache && options.method === 'GET' && manager?.cache) {
       const cached = await manager.cache.get<T>(cacheKey);
-      if (cached) { return cached; }
+      if (cached) {
+        return cached;
+      }
     }
 
     const [res, error] = await lilyRequest<T>(url, options, json);
@@ -124,14 +126,17 @@ export class LilyRestHandler {
     const manager = this.node?.manager;
 
     if (manager?.cache) {
-      return manager.cache.revalidate<RESTLoadTracks | undefined>(cacheKey, async () => {
-        return this.makeRequest<RESTLoadTracks>(
-          `${this.url}/loadtracks?${params.toString()}`,
-          { headers: this.defaultHeaders as HeadersInit },
-          true,
-          false // Don't cache in makeRequest since we're using revalidate
-        );
-      });
+      return manager.cache.revalidate<RESTLoadTracks | undefined>(
+        cacheKey,
+        async () => {
+          return this.makeRequest<RESTLoadTracks>(
+            `${this.url}/loadtracks?${params.toString()}`,
+            { headers: this.defaultHeaders as HeadersInit },
+            true,
+            false // Don't cache in makeRequest since we're using revalidate
+          );
+        }
+      );
     }
 
     return this.makeRequest<RESTLoadTracks>(
@@ -249,13 +254,15 @@ export class LilyRestHandler {
   }
 
   public async decodeTracks<T>(encodedTracks: string[]) {
-    return this.makeRequest<T>(`${this.url}/decodetracks`, {
-      method: 'POST',
-      body: JSON.stringify(encodedTracks),
-      headers: this.defaultHeaders as HeadersInit,
-    },
-    true,
-    false // Don't cache POST requests
+    return this.makeRequest<T>(
+      `${this.url}/decodetracks`,
+      {
+        method: 'POST',
+        body: JSON.stringify(encodedTracks),
+        headers: this.defaultHeaders as HeadersInit,
+      },
+      true,
+      false // Don't cache POST requests
     );
   }
 
@@ -277,13 +284,10 @@ export class LilyRestHandler {
       });
     }
 
-    return this.makeRequest<T>(
-      `${this.url}/sessions/${sessionId}/players`,
-      {
-        method: 'GET',
-        headers: this.defaultHeaders as HeadersInit,
-      }
-    );
+    return this.makeRequest<T>(`${this.url}/sessions/${sessionId}/players`, {
+      method: 'GET',
+      headers: this.defaultHeaders as HeadersInit,
+    });
   }
 
   public async getPlayer<T>(sessionId: string, guildId: string) {
@@ -331,13 +335,10 @@ export class LilyRestHandler {
       });
     }
 
-    return this.makeRequest<T>(
-      `${this.url}/routeplanner/status`,
-      {
-        method: 'GET',
-        headers: this.defaultHeaders as HeadersInit,
-      }
-    );
+    return this.makeRequest<T>(`${this.url}/routeplanner/status`, {
+      method: 'GET',
+      headers: this.defaultHeaders as HeadersInit,
+    });
   }
 
   public async unmarkFailedAddress<T>(address: string) {

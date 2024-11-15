@@ -211,7 +211,9 @@ export class LilyManager extends EventEmitter {
       ...config.options,
     });
 
-    this.cache = this.options.cache?.adapter ?? new WeakMapAdapter(this.options.cache?.options);
+    this.cache =
+      this.options.cache?.adapter ??
+      new WeakMapAdapter(this.options.cache?.options);
     this.bindCacheEvents();
     const NodeManagerClass = Registry.get('NodeManager');
     this.nodes = new NodeManagerClass(this, [...config.nodes]);
@@ -400,11 +402,15 @@ export class LilyManager extends EventEmitter {
   // Type-safe event methods
   public on<T extends keyof (Events & CacheEventMap)>(
     event: T,
-    listener: T extends keyof Events 
-      ? Events[T] 
-      : T extends keyof CacheEventMap 
-      ? ((...args: CacheEventMap[T] extends undefined ? [] : [CacheEventMap[T]]) => void)
-      : never
+    listener: T extends keyof Events
+      ? Events[T]
+      : T extends keyof CacheEventMap
+        ? (
+            ...args: CacheEventMap[T] extends undefined
+              ? []
+              : [CacheEventMap[T]]
+          ) => void
+        : never
   ): this {
     return super.on(event, listener);
   }
@@ -414,8 +420,10 @@ export class LilyManager extends EventEmitter {
     ...args: T extends keyof Events
       ? Parameters<Events[T]>
       : T extends keyof CacheEventMap
-      ? CacheEventMap[T] extends undefined ? [] : [CacheEventMap[T]]
-      : never
+        ? CacheEventMap[T] extends undefined
+          ? []
+          : [CacheEventMap[T]]
+        : never
   ): boolean {
     return super.emit(event, ...args);
   }

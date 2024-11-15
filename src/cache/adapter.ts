@@ -42,7 +42,9 @@ export abstract class CacheAdapter extends EventEmitter {
   abstract entries<T>(): Promise<[string, T][]>;
 
   protected isExpired(entry: CacheEntry<unknown>): boolean {
-    if (!entry.expires) { return false; }
+    if (!entry.expires) {
+      return false;
+    }
     return Date.now() > entry.expires;
   }
 
