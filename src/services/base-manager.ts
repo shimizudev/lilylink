@@ -299,12 +299,22 @@ export class LilyManager extends EventEmitter {
 
     if (response?.loadType === LoadType.Track) {
       // @ts-expect-error: undefined error lol
-      response.data.tracks = [response.data];
+      response.data = [response.data];
     }
 
     if (response?.loadType === LoadType.Search) {
       // @ts-expect-error: undefined error lol
       response.data.tracks = response.data;
+    }
+    if(response?.loadType === LoadType.Playlist) {
+      //@ts-expect-error: undefined error lol
+      response.playlistInfo = {
+        duration: response.data?.tracks?.reduce((acc, cur) => acc + cur.info.length, 0),
+        name: response.data?.info.name,
+        selectedTrack: response.data?.info.selectedTrack
+      };
+      //@ts-expect-error: undefined error lol
+      response.data = [...response.data?.tracks];
     }
 
     const tracks = response?.data?.tracks?.map(
