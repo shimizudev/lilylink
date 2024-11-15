@@ -7,7 +7,7 @@
   "module": "dist/index.mjs",
   "files": ["dist", "README.md", "LICENSE", "package.json"],
   "scripts": {
-    "build": "tsup",
+    "build": "bunx tsc",
     "lint": "biome lint --write .",
     "format": "biome format --write .",
     "check": "biome check --write .",
@@ -29,13 +29,11 @@
     "@biomejs/biome": "1.9.4",
     "@types/node": "^22.9.0",
     "@types/ws": "^8.5.13",
-    "dotenv": "^16.4.5",
     "discord.js": "^14.16.3",
-    "tsup": "^8.3.5",
+    "dotenv": "^16.4.5",
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "radash": "^12.1.0",
     "ws": "^8.18.0",
     "zod": "^3.23.8"
   }
