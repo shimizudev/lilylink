@@ -4,7 +4,6 @@
   "description": "A memory-safe lavalink client with enhanced performance.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "module": "dist/index.mjs",
   "files": ["dist", "README.md", "LICENSE", "package.json"],
   "scripts": {
     "build": "bunx tsc",
