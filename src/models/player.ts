@@ -7,9 +7,9 @@ import type { VoiceState } from './rest';
 import type { LilyTrack } from './track';
 
 export enum PlayerLoop {
-  OFF = 'off',
-  TRACK = 'track',
-  QUEUE = 'queue',
+  OFF = 0,
+  TRACK = 1,
+  QUEUE = 2,
 }
 
 export interface PlayerConfig {
@@ -469,7 +469,7 @@ export class LilyPlayer {
   public setLoop(loop: PlayerLoop): boolean {
     validate(
       loop,
-      z.enum([PlayerLoop.TRACK, PlayerLoop.QUEUE, PlayerLoop.OFF]),
+      z.nativeEnum(PlayerLoop),
       'Loop is invalid',
       TypeError
     );

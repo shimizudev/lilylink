@@ -347,12 +347,12 @@ export class LilyNode {
       return;
     }
 
-    if (player.loop === 'track') {
+    if (player.loop === 1) {
       await this.handleTrackLoop(player);
       return;
     }
 
-    if (player.loop === 'queue' && player.current) {
+    if (player.loop === 2 && player.current) {
       await this.handleQueueLoop(player);
       return;
     }
