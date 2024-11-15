@@ -314,7 +314,7 @@ export class LilyManager extends EventEmitter {
         selectedTrack: response.data?.info.selectedTrack
       };
       //@ts-expect-error: undefined error lol
-      response.data.tracks = [...response.data];
+      response.data = [...response.data.tracks];
     }
 
     const tracks = response?.data?.tracks?.map(
