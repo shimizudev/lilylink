@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import { type CacheAdapter, WeakMapAdapter } from '../cache';
 import { Plugin, Registry } from '../helpers/registry';
 import {
   LilyNodeState,
@@ -15,9 +16,8 @@ import { LilyTrack, type LilyTrack as Track } from '../models/track';
 import { version } from '../utils';
 import type { LilyNodeManager as NodeManager } from './node-manager';
 import type { LilyPlayerManager as PlayerManager } from './player-manager';
-import { type CacheAdapter, WeakMapAdapter } from '../cache';
 
-enum TrackEndReason {
+export enum TrackEndReason {
   QueueEnd = 'queueEnd',
   LoadFailed = 'loadFailed',
   Stopped = 'stopped',
@@ -26,7 +26,7 @@ enum TrackEndReason {
   Finished = 'finished',
 }
 
-interface VoicePacket {
+export interface VoicePacket {
   readonly t: 'VOICE_STATE_UPDATE' | 'VOICE_SERVER_UPDATE';
   readonly d: {
     readonly guild_id: string;
@@ -38,13 +38,13 @@ interface VoicePacket {
   };
 }
 
-interface ManagerConfig {
+export interface ManagerConfig {
   readonly nodes: readonly NodeOptions[];
   readonly options: ManagerOptions;
   readonly sendPayload: <T>(guildId: string, payload: T) => Promise<void>;
 }
 
-interface ManagerOptions {
+export interface ManagerOptions {
   readonly clientName?: string;
   readonly clientId?: string;
   readonly defaultPlatformSearch?: Source;
@@ -65,7 +65,7 @@ interface PlaylistInfo {
   readonly selectedTrack?: number;
 }
 
-interface SearchResult {
+export interface SearchResult {
   readonly loadType: LoadType;
   readonly tracks: Track[];
   readonly playlistInfo: PlaylistInfo;
@@ -80,8 +80,7 @@ interface SearchResult {
   };
 }
 
-// Strongly typed events interface
-interface Events {
+export interface Events {
   readonly nodeRaw: <T>(node: NodeOptions, player: Player, payload: T) => void;
   readonly nodeCreate: (node: NodeOptions) => void;
   readonly nodeReady: (node: NodeOptions, stats: NodeStats) => void;
@@ -120,8 +119,8 @@ interface Events {
   ) => void;
   readonly playerChangedLoop: (
     player: Player,
-    oldLoop: Loop,
-    loop: Loop
+    oldLoop: Loop | keyof typeof Loop,
+    loop: Loop | keyof typeof Loop
   ) => void;
   readonly playerAutoPlaySet: (player: Player, autoPlay: boolean) => void;
   readonly playerAutoLeaveSet: (player: Player, autoLeave: boolean) => void;
