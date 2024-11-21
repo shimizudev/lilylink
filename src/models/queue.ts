@@ -4,7 +4,7 @@ class QueueNode {
   constructor(
     public value: LilyTrack,
     public prev: QueueNode | null = null,
-    public next: QueueNode | null = null
+    public next: QueueNode | null = null,
   ) {}
 }
 
@@ -15,7 +15,7 @@ export class LilyQueue {
   private nodeCount: number;
   private startIndex: number;
 
-  constructor(startIndex = 0) {
+  constructor(startIndex = 1) {
     this.tracks = new Set<LilyTrack>();
     this.head = null;
     this.tail = null;
@@ -164,8 +164,8 @@ export class LilyQueue {
   }
 
   public shuffle(): boolean {
-    if (this.nodeCount <= 1) {
-      return true;
+    if (this.nodeCount < 2) {
+      throw new Error('There must be at least 2 songs in queue!');
     }
 
     const positions: QueueNode[] = [];
