@@ -15,12 +15,12 @@ export class LilyQueue {
   private nodeCount: number;
   private startIndex: number;
 
-  constructor(startIndex = 1) {
+  constructor(queueStartIndex = 0) {
     this.tracks = new Set<LilyTrack>();
     this.head = null;
     this.tail = null;
     this.nodeCount = 0;
-    this.startIndex = Math.max(0, startIndex);
+    this.startIndex = Math.max(0, queueStartIndex);
   }
 
   public setStartIndex(index: number): void {
