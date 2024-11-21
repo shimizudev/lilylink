@@ -15,7 +15,7 @@ export class LilyQueue {
   private nodeCount: number;
   private startIndex: number;
 
-  constructor(startIndex: 1) {
+  constructor(startIndex = 1) {
     this.tracks = new Set<LilyTrack>();
     this.head = null;
     this.tail = null;
