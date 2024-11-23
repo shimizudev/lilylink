@@ -376,7 +376,7 @@ export class LilyPlayer {
       position,
       z
         .number()
-        .min(0)
+        .min(1)
         .max(this.queue.size - 1)
         .optional(),
       'Invalid position'
@@ -449,7 +449,7 @@ export class LilyPlayer {
   }
 
   public setVolume(volume: number): boolean {
-    validate(volume, z.number().min(0).max(100), 'volume is invalid');
+    validate(volume, z.number().min(1).max(100), 'volume is invalid');
     const oldVolume = Number(this.volume);
     this.volume = volume;
 
