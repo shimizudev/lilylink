@@ -377,7 +377,7 @@ export class LilyPlayer {
       z
         .number()
         .min(1)
-        .max(this.queue.size - 1)
+        .max(this.queue.size)
         .optional(),
       'Invalid position'
     );
