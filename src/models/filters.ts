@@ -71,7 +71,7 @@ export interface FilterMap {
 export class LilyFilters {
   private readonly player: LilyPlayer;
   private readonly rest: LilyRestHandler;
-  private filters: FilterMap;
+  private filterList: FilterMap;
   private updateTimeout: NodeJS.Timeout | null = null;
   private static readonly UPDATE_DEBOUNCE_MS = 50;
   private static readonly VALIDATION_RANGES = {
@@ -90,7 +90,7 @@ export class LilyFilters {
   constructor(player: LilyPlayer) {
     this.player = player;
     this.rest = player.node.rest;
-    this.filters = this.initializeFilters();
+    this.filterList = this.initializeFilters();
   }
 
   private initializeFilters(): FilterMap {
@@ -173,7 +173,7 @@ export class LilyFilters {
 
       // Update player and local state
       this.player.set(filterName, value);
-      this.filters[filterName] = value;
+      this.filterList[filterName] = value;
 
       // Debounce filter updates to prevent rate limiting
       if (this.updateTimeout) {
@@ -184,7 +184,7 @@ export class LilyFilters {
         this.updateFiltersFromRest().catch((error) => {
           console.error('Failed to update filters:', error);
           // Revert changes on failure
-          this.player.set(filterName, this.filters[filterName]);
+          this.player.set(filterName, this.filterList[filterName]);
         });
         this.updateTimeout = null;
       }, LilyFilters.UPDATE_DEBOUNCE_MS);
@@ -240,7 +240,7 @@ export class LilyFilters {
   public async resetFilters(): Promise<this> {
     try {
       await Promise.all(
-        Object.keys(this.filters).map((key) =>
+        Object.keys(this.filterList).map((key) =>
           this.setFilter(key as keyof FilterMap, null)
         )
       );
@@ -256,7 +256,7 @@ export class LilyFilters {
       const dataToUpdate = {
         guildId: this.player.guildId,
         data: {
-          filters: { ...this.filters }, // Create a shallow copy
+          filters: { ...this.filterList }, // Create a shallow copy
         },
       };
       await this.rest.update(dataToUpdate);
@@ -269,7 +269,7 @@ export class LilyFilters {
 
   // Getter method to safely access current filter values
   public getFilters(): Readonly<FilterMap> {
-    return Object.freeze({ ...this.filters });
+    return Object.freeze({ ...this.filterList });
   }
 
   // Clean up method to prevent memory leaks
