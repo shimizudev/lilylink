@@ -16,15 +16,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ayaweeb/lilylink.git"
+    "url": "git+https://github.com/asamikiyomi/lilylink.git"
   },
   "keywords": ["Lilylink", "Lavalink", "Lavalink", "Client", "Music"],
-  "author": "Lovely Aya <maria7892020@gmail.com>",
+  "author": "Kiyomi <maria7892020@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ayaweeb/lilylink/issues"
+    "url": "https://github.com/asamikiyomi/lilylink/issues"
   },
-  "homepage": "https://github.com/ayaweeb/lilylink#readme",
+  "homepage": "https://github.com/asamikiyomi/lilylink#readme",
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/node": "^22.9.0",
