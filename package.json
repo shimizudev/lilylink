@@ -23,14 +23,8 @@
     "type": "git",
     "url": "git+https://github.com/asamikiyomi/lilylink.git"
   },
-  "keywords": [
-    "Lilylink",
-    "Lavalink",
-    "Lavalink",
-    "Client",
-    "Music"
-  ],
-  "author": "Kiyomi <maria7892020@gmail.com>",
+  "keywords": ["Lilylink", "Lavalink", "Lavalink", "Client", "Music"],
+  "author": "Lovely Aya <maria7892020@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/asamikiyomi/lilylink/issues"

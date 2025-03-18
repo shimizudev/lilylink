@@ -1,4 +1,4 @@
-# Aya's version of LilyLink
+# Kiyomi's version of LilyLink
 
 A high-performance, memory-safe Lavalink client written in TypeScript.
 
