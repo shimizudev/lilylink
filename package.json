@@ -5,12 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.mjs",
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE",
-    "package.json"
-  ],
+  "files": ["dist", "README.md", "LICENSE", "package.json"],
   "scripts": {
     "build": "tsup",
     "lint": "biome lint --write .",
@@ -23,8 +18,8 @@
     "type": "git",
     "url": "git+https://github.com/asamikiyomi/lilylink.git"
   },
-  "keywords": ["Lilylink", "Lavalink", "Lavalink", "Client", "Music"],
-  "author": "Lovely Aya <maria7892020@gmail.com>",
+  "keywords": ["Lilylink", "Lavalink", "Client", "Music"],
+  "author": "Kiyomi <maria7892020@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/asamikiyomi/lilylink/issues"
@@ -32,10 +27,10 @@
   "homepage": "https://github.com/asamikiyomi/lilylink#readme",
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@types/node": "^22.13.9",
+    "@types/node": "^22.9.0",
     "@types/ws": "^8.5.13",
-    "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
+    "discord.js": "^14.16.3",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3"
   },
