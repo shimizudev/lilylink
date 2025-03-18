@@ -105,7 +105,7 @@ export class LilyRestHandler {
 
   constructor(node: LilyNode) {
     this.node = node;
-    this.url = `http${this.node.secure ? 's' : ''}://${this.node.address}/v4`;
+    this.url = `${this.node.secure ? 'https' : 'http'}://${this.node.address}/v4`;
     this.defaultHeaders = {
       Authorization: this.node.password as string,
       Accept: 'application/json',
