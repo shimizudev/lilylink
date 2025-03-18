@@ -7,7 +7,10 @@ export enum Source {
   SOUNDCLOUD = 'scsearch',
   YOUTUBE_MUSIC = 'ytmsearch',
   SPOTIFY = 'spsearch',
-  BANDCAMP = 'bcsearch'
+  BANDCAMP = 'bcsearch',
+  DEEZER = 'dzsearch',
+  DEEZER_ISRC = 'dzisrc',
+  SPOTIFY_REC = 'sprec'
 }
 
 export enum LoadType {
@@ -119,6 +122,9 @@ export class LilyRestHandler {
       [Source.YOUTUBE_MUSIC]: 'ytmsearch',
       [Source.SPOTIFY]: 'spsearch',
       [Source.BANDCAMP]: 'bcsearch',
+      [Source.DEEZER]: 'dzsearch',
+      [Source.DEEZER_ISRC]: 'dzisrc',
+      [Source.SPOTIFY_REC]: 'sprec'
     };
     let searchIdentifier = query.startsWith("http://") || query.startsWith("https://") ? query : source ? sources[source] ? `${sources[source]}:${query}` : `${source}:${query}`: `ytsearch:${query}`;
 
