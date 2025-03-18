@@ -144,7 +144,7 @@ export class LilyNode {
       'Client-Name': this.manager?.options.clientName,
     };
 
-    const wsUrl = `ws${this.secure ? 's' : ''}://${this.address}/v4/websocket`;
+    const wsUrl = `${this.secure ? 'wss' : 'ws'}://${this.address}/v4/websocket`;
     this.socket = new WebSocket(wsUrl, { headers });
 
     this.bindSocketEvents();

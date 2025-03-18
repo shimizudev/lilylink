@@ -214,7 +214,7 @@ export class LilyRestHandler {
     if (manager?.cache) {
       return manager.cache.revalidate<T | undefined>(cacheKey, () => {
         return this.makeRequest<T>(
-          `http${this.node?.secure ? 's' : ''}://${this.node?.address}/version`,
+          `${this.node?.secure ? 'https' : 'http'}://${this.node?.address}/version`,
           {
             method: 'GET',
             headers: this.defaultHeaders as HeadersInit,
@@ -226,7 +226,7 @@ export class LilyRestHandler {
     }
 
     return this.makeRequest<T>(
-      `http${this.node?.secure ? 's' : ''}://${this.node?.address}/version`,
+      `${this.node?.secure ? 'https' : 'http'}://${this.node?.address}/version`,
       {
         method: 'GET',
         headers: this.defaultHeaders as HeadersInit,
