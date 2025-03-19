@@ -5,7 +5,7 @@ import type { LilyNode } from './node';
 import { LilyQueue } from './queue';
 import type { VoiceState } from './rest';
 import type { LilyTrack } from './track';
-
+import { LilyFilters } from './filters';
 export enum PlayerLoop {
   OFF = 0,
   TRACK = 1,
@@ -51,7 +51,7 @@ export class LilyPlayer {
   public queue!: LilyQueue;
   public node!: LilyNode;
   public data: Record<string, unknown> = {};
-
+  public filters: LilyFilters;
   private get cacheKey() {
     return `player:${this.guildId}`;
   }
@@ -73,6 +73,7 @@ export class LilyPlayer {
     this.autoLeave = config.autoLeave || false;
     this.queue = new LilyQueue(manager.options.queueStartIndex ?? 0);
     this.node = this.manager.nodes.get(config.node as string) as LilyNode;
+    this.filters = new LilyFilters(this);
     this.cacheState();
   }
 
