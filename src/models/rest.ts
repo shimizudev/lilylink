@@ -10,7 +10,8 @@ export enum Source {
   BANDCAMP = 'bcsearch',
   DEEZER = 'dzsearch',
   DEEZER_ISRC = 'dzisrc',
-  SPOTIFY_REC = 'sprec'
+  SPOTIFY_REC = 'sprec',
+  APPLE_MUSIC = 'amsearch',
 }
 
 export enum LoadType {
@@ -124,7 +125,8 @@ export class LilyRestHandler {
       [Source.BANDCAMP]: 'bcsearch',
       [Source.DEEZER]: 'dzsearch',
       [Source.DEEZER_ISRC]: 'dzisrc',
-      [Source.SPOTIFY_REC]: 'sprec'
+      [Source.SPOTIFY_REC]: 'sprec',
+      [Source.APPLE_MUSIC]: 'amsearch'
     };
     let searchIdentifier = query.startsWith("http://") || query.startsWith("https://") ? query : source ? sources[source] ? `${sources[source]}:${query}` : `${source}:${query}`: `ytsearch:${query}`;
 
