@@ -259,7 +259,7 @@ export class LilyFilters {
       const dataToUpdate = {
         guildId: this.player.guildId,
         data: {
-          filters: { cleanedFilters }, // Create a shallow copy
+          filters: cleanedFilters, // Create a shallow copy
         },
       };
       await this.rest.update(dataToUpdate);
