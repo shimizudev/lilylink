@@ -253,10 +253,13 @@ export class LilyFilters {
 
   private async updateFiltersFromRest(): Promise<boolean> {
     try {
+      const cleanedFilters = Object.fromEntries(
+        Object.entries(this.filters).filter(([_, v]) => v !== null)
+      );
       const dataToUpdate = {
         guildId: this.player.guildId,
         data: {
-          filters: { ...this.filters }, // Create a shallow copy
+          filters: { cleanedFilters }, // Create a shallow copy
         },
       };
       await this.rest.update(dataToUpdate);
