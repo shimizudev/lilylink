@@ -4,7 +4,7 @@ import type { LilyManager } from '../services/base-manager';
 import type { LilyPlayer } from './player';
 import { LilyRestHandler } from './rest';
 import type { LilyTrack } from './track';
-
+import { spAutoPlay } from '../helpers/autoPlay';
 export interface NodeStats {
   players: number;
   playingPlayers: number;
@@ -362,7 +362,7 @@ export class LilyNode {
       return;
     }
 
-    if (player.autoPlay && player.current?.sourceName === 'youtube') {
+    if (player.autoPlay) {
       await this.handleAutoPlay(player, payload);
       return;
     }
@@ -417,9 +417,10 @@ export class LilyNode {
       return;
     }
 
+    if (player.current?.sourceName === 'youtube') {
     try {
       const uri = `https://www.youtube.com/watch?v=${player.current?.identifier}&list=RD${player.current?.identifier}`;
-      const res = await this.manager?.search({ query: uri });
+      const res = await this.manager?.search({ query: uri, requester: 'AutoPlay(YouTube)' });
 
       if (!res?.tracks || ['loadFailed', 'cleanup'].includes(res.loadType)) {
         return;
@@ -440,8 +441,31 @@ export class LilyNode {
     } catch (error) {
       console.error('AutoPlay error:', error);
     }
-  }
+  } else if (player.current?.sourceName === 'spotify') {
+    try {
+      spAutoPlay(player.current?.identifier ?? '').then(async (data) => {
+        const res = await this.manager?.search({ query: `https://open.spotify.com/track/${data}`, requester: 'AutoPlay(Spotify)' });
+        
+        if (!res?.tracks || ['error', 'empty'].includes(res.loadType)) {
+          return this.destroy();
+        }
+        const filteredTracks = res.tracks.filter(
+          (track) => track.identifier !== player.current?.identifier
+        );
 
+        if (filteredTracks.length === 0) {
+          return;
+        }
+        
+        let track = filteredTracks[Math.floor(Math.random() * Math.floor(filteredTracks.length))];
+        player.queue.add(track as LilyTrack);
+        player.play();
+      });
+    } catch (error) {
+      console.error('AutoPlay error:', error);
+    }
+  }
+}
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private handleTrackStuck(player: LilyPlayer, payload: any): void {
     this.manager?.emit(
