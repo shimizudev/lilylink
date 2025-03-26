@@ -5,6 +5,7 @@ import type { LilyPlayer } from './player';
 import { LilyRestHandler } from './rest';
 import type { LilyTrack } from './track';
 import { scAutoPlay, spAutoPlay } from '../helpers/autoPlay';
+import { Source } from './rest';
 export interface NodeStats {
   players: number;
   playingPlayers: number;
@@ -448,7 +449,7 @@ export class LilyNode {
         const res = await this.manager?.search({ query: `https://open.spotify.com/track/${data}`, requester: 'AutoPlay(Spotify)' });
         
         if (!res?.tracks || ['error', 'empty'].includes(res.loadType)) {
-          return this.destroy();
+          return;
         }
         const filteredTracks = res.tracks.filter(
           (track) => track.identifier !== player.current?.identifier
@@ -469,12 +470,12 @@ export class LilyNode {
   } else if(player.current?.sourceName === 'soundcloud') {
     try {
       scAutoPlay(player.current?.url ?? '').then(async (data) => {
-        const res = await this.manager?.search({ query: `${data}`, requester: 'AutoPlay(SoundCloud)'});
+        const res = await this.manager?.search({ query: `${data}`, source: Source.SOUNDCLOUD, requester: 'AutoPlay(SoundCloud)'});
         if (!res?.tracks || ['error', 'empty'].includes(res.loadType)) {
-          return this.destroy();
+          return;
         }
         const filteredTracks = res.tracks.filter(
-          (track) => track.identifier !== player.current?.identifier
+          (track) => track.url !== player.current?.url
         );
 
         if (filteredTracks.length === 0) {
