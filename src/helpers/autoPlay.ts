@@ -2,7 +2,7 @@ import { fetch as undiciFetch } from 'undici';
 import crypto from 'crypto';
 import { JSDOM } from 'jsdom';
 
-export async function scAutoPlay(url: string): Promise<string[]> {
+export async function scAutoPlay(url: string) {
     const res = await undiciFetch(`${url}/recommended`);
 
     if (res.status !== 200) {
@@ -10,34 +10,22 @@ export async function scAutoPlay(url: string): Promise<string[]> {
     }
 
     const html = await res.text();
+
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    // Ensure `noscript` elements exist before accessing index [1]
     const secondNoscript = document.querySelectorAll('noscript')[1];
-    if (!secondNoscript) {
-        throw new Error('Could not find second <noscript> element');
-    }
-
     const sectionElement = secondNoscript.querySelector('section');
-    if (!sectionElement) {
-        throw new Error('Could not find section element');
-    }
+    const articleElements = sectionElement?.querySelectorAll('article');
 
-    const articleElements = sectionElement.querySelectorAll('article');
+    articleElements?.forEach(articleElement => {
+        const h2Element = articleElement.querySelector('h2[itemprop="name"]');
 
-    // Extract URLs and return an array
-    return Array.from(articleElements)
-        .map(articleElement => {
-            const h2Element = articleElement.querySelector('h2[itemprop="name"]');
-            if (!h2Element) return null;
+        const aElement = h2Element?.querySelector('a[itemprop="url"]');
+        const href = `https://soundcloud.com${aElement?.getAttribute('href')}`
 
-            const aElement = h2Element.querySelector('a[itemprop="url"]');
-            if (!aElement) return null;
-
-            return `https://soundcloud.com${aElement.getAttribute('href')}`;
-        })
-        .filter((href): href is string => href !== null); // Remove `null` values
+        return href;
+    });
 }
 export async function spAutoPlay(track_id: string): Promise<string> {
     const TOTP_SECRET: Uint8Array = new Uint8Array([
