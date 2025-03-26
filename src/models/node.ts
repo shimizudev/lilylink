@@ -4,7 +4,7 @@ import type { LilyManager } from '../services/base-manager';
 import type { LilyPlayer } from './player';
 import { LilyRestHandler } from './rest';
 import type { LilyTrack } from './track';
-import { spAutoPlay } from '../helpers/autoPlay';
+import { scAutoPlay, spAutoPlay } from '../helpers/autoPlay';
 export interface NodeStats {
   players: number;
   playingPlayers: number;
@@ -464,6 +464,29 @@ export class LilyNode {
     } catch (error) {
       console.error('AutoPlay error:', error);
     }
+  } else if(player.current?.sourceName === 'soundcloud') {
+    try {
+      scAutoPlay(player.current?.url ?? '').then(async (data) => {
+        const res = await this.manager?.search({ query: `${data}`, requester: 'AutoPlay(SoundCloud)'});
+        if (!res?.tracks || ['error', 'empty'].includes(res.loadType)) {
+          return this.destroy();
+        }
+        const filteredTracks = res.tracks.filter(
+          (track) => track.identifier !== player.current?.identifier
+        );
+
+        if (filteredTracks.length === 0) {
+          return;
+        }
+        
+        let track = filteredTracks[Math.floor(Math.random() * Math.floor(filteredTracks.length))];
+        player.queue.add(track as LilyTrack);
+        player.play();
+      });
+  } catch (e) {
+      console.log(e);
+      return this.destroy();
+  }
   }
 }
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>

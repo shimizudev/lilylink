@@ -1,6 +1,44 @@
 import { fetch as undiciFetch } from 'undici';
 import crypto from 'crypto';
+import { JSDOM } from 'jsdom';
 
+export async function scAutoPlay(url: string): Promise<string[]> {
+    const res = await undiciFetch(`${url}/recommended`);
+
+    if (res.status !== 200) {
+        throw new Error(`Failed to fetch URL. Status code: ${res.status}`);
+    }
+
+    const html = await res.text();
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+
+    // Ensure `noscript` elements exist before accessing index [1]
+    const secondNoscript = document.querySelectorAll('noscript')[1];
+    if (!secondNoscript) {
+        throw new Error('Could not find second <noscript> element');
+    }
+
+    const sectionElement = secondNoscript.querySelector('section');
+    if (!sectionElement) {
+        throw new Error('Could not find section element');
+    }
+
+    const articleElements = sectionElement.querySelectorAll('article');
+
+    // Extract URLs and return an array
+    return Array.from(articleElements)
+        .map(articleElement => {
+            const h2Element = articleElement.querySelector('h2[itemprop="name"]');
+            if (!h2Element) return null;
+
+            const aElement = h2Element.querySelector('a[itemprop="url"]');
+            if (!aElement) return null;
+
+            return `https://soundcloud.com${aElement.getAttribute('href')}`;
+        })
+        .filter((href): href is string => href !== null); // Remove `null` values
+}
 export async function spAutoPlay(track_id: string): Promise<string> {
     const TOTP_SECRET: Uint8Array = new Uint8Array([
         53, 53, 48, 55, 49, 52, 53, 56, 53, 51, 52, 56, 55, 52, 57, 57, 
