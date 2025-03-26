@@ -440,6 +440,7 @@ export class LilyNode {
       player.play();
     } catch (error) {
       console.error('AutoPlay error:', error);
+      return this.destroy();
     }
   } else if (player.current?.sourceName === 'spotify') {
     try {
@@ -463,6 +464,7 @@ export class LilyNode {
       });
     } catch (error) {
       console.error('AutoPlay error:', error);
+      return this.destroy();
     }
   } else if(player.current?.sourceName === 'soundcloud') {
     try {
@@ -483,9 +485,9 @@ export class LilyNode {
         player.queue.add(track as LilyTrack);
         player.play();
       });
-  } catch (e) {
-      console.log(e);
-      return this.destroy();
+  } catch (error) {
+    console.error('AutoPlay error:', error);
+    return this.destroy();
   }
   }
 }
