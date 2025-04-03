@@ -1,4 +1,4 @@
-# Kiyomi's version of LilyLink
+# LilyLink
 
 A high-performance, memory-safe Lavalink client written in TypeScript.
 
@@ -11,7 +11,7 @@ A high-performance, memory-safe Lavalink client written in TypeScript.
 - Comprehensive documentation and examples
 - Advanced cache system with multiple adapters
 - Built-in Queue system
-- AutoPlay for both youtube and spotify
+- AutoPlay Features
 - Player Filters
 
 ## Getting Started

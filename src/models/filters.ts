@@ -54,6 +54,12 @@ export interface ChannelMix {
 export interface LowPass {
   readonly smoothing?: number;
 }
+export interface Reverb {
+	wet?: number;
+	dry?: number;
+	roomSize?: number;
+	damping?: number;
+}
 
 export interface FilterMap {
   volume: number | null;
@@ -66,6 +72,7 @@ export interface FilterMap {
   distortion: Distortion | null;
   channelMix: ChannelMix | null;
   lowPass: LowPass | null;
+  reverb: Reverb | null;
 }
 
 export class LilyFilters {
@@ -105,6 +112,7 @@ export class LilyFilters {
       distortion: this.getPlayerFilter<Distortion>('distortion'),
       channelMix: this.getPlayerFilter<ChannelMix>('channelMix'),
       lowPass: this.getPlayerFilter<LowPass>('lowPass'),
+      reverb: this.getPlayerFilter<Reverb>('reverb')
     };
   }
 
@@ -235,6 +243,9 @@ export class LilyFilters {
 
   public setLowPass(lowPass: LowPass | null): Promise<this> {
     return this.setFilter('lowPass', lowPass);
+  }
+  public setReverb(reverb: Reverb | null): Promise<this> {
+    return this.setFilter('reverb', reverb);
   }
 
   public async resetFilters(): Promise<this> {
