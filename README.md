@@ -11,8 +11,9 @@ A high-performance, memory-safe Lavalink client written in TypeScript.
 - Comprehensive documentation and examples
 - Advanced cache system with multiple adapters
 - Built-in Queue system
-- AutoPlay Features
+- AutoPlay features
 - Player Filters
+- More sources
 
 ## Getting Started
 
@@ -97,4 +98,4 @@ class RedisAdapter extends CacheAdapter {
 }
 ```
 
-Note this is a simple example with Redis, you should handle errors and edge cases (i.e: expiry, json-check, emitting events, etc.) in your own implementation.
+ Note this is a simple example with Redis, you should handle errors and edge cases (i.e: expiry, json-check, emitting events, etc.) in your own implementation.

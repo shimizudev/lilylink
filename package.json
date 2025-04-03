@@ -1,12 +1,18 @@
 {
   "name": "lilylink",
   "version": "2.0.1",
-  "description": "A memory-safe lavalink client with enhanced performance.",
+  "description": "A fork of a memory-safe lavalink client with enhanced performance.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist", "README.md", "LICENSE", "package.json"],
+  "module": "dist/index.mjs",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "scripts": {
-    "build": "bunx tsc",
+    "build": "tsup",
     "lint": "biome lint --write .",
     "format": "biome format --write .",
     "check": "biome check --write .",
@@ -17,11 +23,16 @@
     "type": "git",
     "url": "git+https://github.com/asamikiyomi/lilylink.git"
   },
-  "keywords": ["Lilylink", "Lavalink", "Lavalink", "Client", "Music"],
-  "author": "Kiyomi <maria7892020@gmaio.com>",
+  "keywords": [
+    "Lilylink",
+    "Lavalink",
+    "Client",
+    "Music"
+  ],
+  "author": "Kiyomi <maria7892020@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/asamikyomi/lilylink/issues"
+    "url": "https://github.com/asamikiyomi/lilylink/issues"
   },
   "homepage": "https://github.com/asamikiyomi/lilylink#readme",
   "devDependencies": {
@@ -30,9 +41,13 @@
     "@types/ws": "^8.5.13",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
+    "tsup": "^8.3.5",
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@types/jsdom": "^21.1.7",
+    "jsdom": "^26.0.0",
+    "radash": "^12.1.0",
     "ws": "^8.18.0",
     "zod": "^3.23.8"
   }
