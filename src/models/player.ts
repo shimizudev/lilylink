@@ -21,6 +21,7 @@ export interface PlayerConfig {
   autoPlay?: boolean;
   autoLeave?: boolean;
   node?: string;
+  region: string;
 }
 
 export enum PlayerState {
@@ -52,6 +53,7 @@ export class LilyPlayer {
   public node!: LilyNode;
   public data: Record<string, unknown> = {};
   public filters: LilyFilters;
+  public region: string;
   private get cacheKey() {
     return `player:${this.guildId}`;
   }
@@ -74,6 +76,7 @@ export class LilyPlayer {
     this.queue = new LilyQueue(manager.options.queueStartIndex ?? 0);
     this.node = this.manager.nodes.get(config.node as string) as LilyNode;
     this.filters = new LilyFilters(this);
+    this.region = config.region;
     this.cacheState();
   }
 

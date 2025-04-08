@@ -63,7 +63,7 @@ export class LilyNode {
   public reconnectAttempts = 0;
   public retryAmount: number;
   public retryDelay: number;
-  public regions: string[] | undefined;
+  public regions: string[];
   public secure: boolean;
   public sessionId: string;
   public socket: WebSocket | null;
@@ -94,7 +94,7 @@ export class LilyNode {
     this.port = port;
     this.identifier = identifier;
     this.password = password;
-    this.regions = regions;
+    this.regions = regions?.map?.(x => x?.toLowerCase?.()) || [];
     this.retryDelay = retryDelay;
     this.retryAmount = retryAmount;
     this.secure = secure;

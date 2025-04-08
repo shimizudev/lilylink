@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { Plugin, Registry } from '../helpers/registry';
 import {
+  LilyNode,
   LilyNodeState,
   type LilyNodeOptions as NodeOptions,
   type NodeStats,
@@ -48,6 +49,7 @@ interface ManagerOptions {
   readonly clientName?: string;
   readonly clientId?: string;
   readonly defaultPlatformSearch?: Source;
+  readonly sortPlayersByRegion?: boolean;
   readonly plugins?: readonly Plugin[];
   readonly previousInArray?: boolean;
   readonly queueStartIndex?: number;
@@ -209,6 +211,7 @@ export class LilyManager extends EventEmitter {
     this.options = Object.freeze({
       clientName: `LilyLink/${this.version} (Flowery, v${this.version.split('.')[0]}.${this.version.split('.')[1]})`,
       defaultPlatformSearch: Source.YOUTUBE,
+      sortPlayersByRegion: false,
       ...config.options,
     });
 
@@ -359,7 +362,24 @@ export class LilyManager extends EventEmitter {
         token: packet.d.token,
         endpoint: packet.d.endpoint,
       };
-
+      if(packet.d.endpoint) {
+        const match = packet.d.endpoint.match(/^([a-z-]+)[0-9]*\.discord\.media/i);
+        if(match) {
+          const region = match[1];
+          player.region = region;
+          if (this.options.sortPlayersByRegion && !player.node.regions.includes(region)) {
+            let hasNode = [...this.nodes.cache.values()].some(node =>
+              node.regions.includes(region)
+            );
+            if (hasNode) {
+              let newNode = [...this.nodes.cache.values()].find(node =>
+                node.regions.includes(region)
+              );
+              player.node = newNode as LilyNode;
+            }
+          }
+        }
+      }
       await this.attemptConnection(packet.d.guild_id);
     } else if (
       packet.t === 'VOICE_STATE_UPDATE' &&

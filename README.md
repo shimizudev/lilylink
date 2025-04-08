@@ -14,7 +14,7 @@ A high-performance, memory-safe Lavalink client written in TypeScript.
 - AutoPlay features
 - Player Filters
 - More sources
-
+- Player and node regions
 ## Getting Started
 
 For a complete implementation example, please refer to our [example bot](./testBot/index.js).
