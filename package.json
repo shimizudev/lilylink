@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/asamikiyomi/lilylink.git"
+    "url": "git+https://github.com/shimizudev/lilylink.git"
   },
   "keywords": [
     "Lilylink",
@@ -29,12 +29,12 @@
     "Client",
     "Music"
   ],
-  "author": "Kiyomi <maria7892020@gmail.com>",
+  "author": "Kiyomi & Mohtasmim",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/asamikiyomi/lilylink/issues"
+    "url": "https://github.com/shimizudev/lilylink/issues"
   },
-  "homepage": "https://github.com/asamikiyomi/lilylink#readme",
+  "homepage": "https://github.com/shimizudev/lilylink#readme",
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/node": "^22.9.0",
