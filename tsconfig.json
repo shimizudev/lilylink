@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2023",
-    "module": "commonjs",
+    "target": "ES5",
+    "module": "CommonJS",
+    "lib": ["ES2023", "DOM"],
     "declaration": true,
-    "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
     "allowSyntheticDefaultImports": true,
@@ -11,7 +11,11 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "downlevelIteration": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]

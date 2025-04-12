@@ -45,7 +45,7 @@ export class LilyPlayer {
   public playing!: boolean;
   public paused!: boolean;
   public volume = 80;
-  public loop: PlayerLoop = PlayerLoop.OFF;
+  public loop: PlayerLoop | keyof typeof PlayerLoop = PlayerLoop.OFF;
   public current: LilyTrack | null = null;
   public previous: LilyTrack | LilyTrack[] | null = null;
   public ping = 0;
@@ -131,7 +131,7 @@ export class LilyPlayer {
       playing: boolean;
       paused: boolean;
       volume: number;
-      loop: PlayerLoop;
+      loop: PlayerLoop | keyof typeof PlayerLoop;
       current: LilyTrack | null;
       previous: LilyTrack | LilyTrack[] | null;
       ping: number;
@@ -468,14 +468,14 @@ export class LilyPlayer {
     return true;
   }
 
-  public setLoop(loop: PlayerLoop): boolean {
+  public setLoop(loop: PlayerLoop | keyof typeof PlayerLoop): boolean {
     validate(
       loop,
       z.nativeEnum(PlayerLoop),
       'Loop is invalid',
       TypeError
     );
-    const oldLoop: PlayerLoop = this.loop;
+    const oldLoop: PlayerLoop | keyof typeof PlayerLoop = this.loop;
 
     this.loop = loop;
     this.manager.emit('playerChangedLoop', this, oldLoop, loop);

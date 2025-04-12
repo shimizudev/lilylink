@@ -11,6 +11,7 @@ export class LilyPlayerManager {
   constructor(manager: LilyManager) {
     this.manager = manager;
   }
+
   public create(config: PlayerConfig): LilyPlayer | undefined {
     validate(config.guildId, z.string(), 'guildId is required');
 
