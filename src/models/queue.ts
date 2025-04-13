@@ -4,7 +4,7 @@ class QueueNode {
   constructor(
     public value: LilyTrack,
     public prev: QueueNode | null = null,
-    public next: QueueNode | null = null,
+    public next: QueueNode | null = null
   ) {}
 }
 

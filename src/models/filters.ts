@@ -55,10 +55,10 @@ export interface LowPass {
   readonly smoothing?: number;
 }
 export interface Reverb {
-	wet?: number;
-	dry?: number;
-	roomSize?: number;
-	damping?: number;
+  wet?: number;
+  dry?: number;
+  roomSize?: number;
+  damping?: number;
 }
 
 export interface FilterMap {
@@ -112,7 +112,7 @@ export class LilyFilters {
       distortion: this.getPlayerFilter<Distortion>('distortion'),
       channelMix: this.getPlayerFilter<ChannelMix>('channelMix'),
       lowPass: this.getPlayerFilter<LowPass>('lowPass'),
-      reverb: this.getPlayerFilter<Reverb>('reverb')
+      reverb: this.getPlayerFilter<Reverb>('reverb'),
     };
   }
 

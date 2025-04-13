@@ -1,11 +1,12 @@
 import WebSocket from 'ws';
+import { autoPlayProvider } from '../helpers/autoPlay';
 import { Registry } from '../helpers/registry';
 import type { LilyManager } from '../services/base-manager';
 import type { LilyPlayer } from './player';
 import { LilyRestHandler } from './rest';
-import type { LilyTrack } from './track';
-import { scAutoPlay, spAutoPlay } from '../helpers/autoPlay';
 import { Source } from './rest';
+import type { LilyTrack } from './track';
+
 export interface NodeStats {
   players: number;
   playingPlayers: number;
@@ -94,7 +95,7 @@ export class LilyNode {
     this.port = port;
     this.identifier = identifier;
     this.password = password;
-    this.regions = regions?.map?.(x => x?.toLowerCase?.()) || [];
+    this.regions = regions?.map?.((x) => x?.toLowerCase?.()) || [];
     this.retryDelay = retryDelay;
     this.retryAmount = retryAmount;
     this.secure = secure;
@@ -379,8 +380,7 @@ export class LilyNode {
     }
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  private async handleFailedTrack(player: any): Promise<void> {
+  private async handleFailedTrack(player: LilyPlayer): Promise<void> {
     if (player.queue.size) {
       player.play();
     } else {
@@ -388,13 +388,12 @@ export class LilyNode {
     }
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  private async handleTrackLoop(player: any): Promise<void> {
+  private async handleTrackLoop(player: LilyPlayer): Promise<void> {
     await this.rest.update({
       guildId: player.guildId,
       data: {
         track: {
-          encoded: player.current.encoded,
+          encoded: player.current?.encoded,
         },
       },
     });
@@ -417,40 +416,18 @@ export class LilyNode {
     if (payload.reason === 'stopped' || !player.autoPlay) {
       return;
     }
-
     if (player.current?.sourceName === 'youtube') {
-    try {
-      const uri = `https://www.youtube.com/watch?v=${player.current?.identifier}&list=RD${player.current?.identifier}`;
-      const res = await this.manager?.search({ query: uri, requester: 'AutoPlay(YouTube)' });
+      try {
+        const uri = `https://www.youtube.com/watch?v=${player.current?.identifier}&list=RD${player.current?.identifier}`;
+        const res = await this.manager?.search({
+          query: uri,
+          requester: 'AutoPlay(YouTube)',
+        });
 
-      if (!res?.tracks || ['loadFailed', 'cleanup'].includes(res.loadType)) {
-        return;
-      }
-
-      const filteredTracks = res.tracks.filter(
-        (track) => track.identifier !== player.current?.identifier
-      );
-
-      if (filteredTracks.length === 0) {
-        return;
-      }
-
-      const randomTrack =
-        filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
-      player.queue.add(randomTrack as LilyTrack);
-      player.play();
-    } catch (error) {
-      console.error('AutoPlay error:', error);
-      return this.destroy();
-    }
-  } else if (player.current?.sourceName === 'spotify') {
-    try {
-      spAutoPlay(player.current?.identifier ?? '').then(async (data) => {
-        const res = await this.manager?.search({ query: `https://open.spotify.com/track/${data}`, requester: 'AutoPlay(Spotify)' });
-        
-        if (!res?.tracks || ['error', 'empty'].includes(res.loadType)) {
+        if (!res?.tracks || ['loadFailed', 'cleanup'].includes(res.loadType)) {
           return;
         }
+
         const filteredTracks = res.tracks.filter(
           (track) => track.identifier !== player.current?.identifier
         );
@@ -458,22 +435,62 @@ export class LilyNode {
         if (filteredTracks.length === 0) {
           return;
         }
-        
-        let track = filteredTracks[Math.floor(Math.random() * Math.floor(filteredTracks.length))];
-        player.queue.add(track as LilyTrack);
+
+        const randomTrack =
+          filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
+        player.queue.add(randomTrack as LilyTrack);
         player.play();
-      });
-    } catch (error) {
-      console.error('AutoPlay error:', error);
-      return this.destroy();
-    }
-  } else if(player.current?.sourceName === 'soundcloud') {
-    try {
-      scAutoPlay(player.current?.url ?? '').then(async (data) => {
-        const res = await this.manager?.search({ query: `${data}`, source: Source.SOUNDCLOUD, requester: 'AutoPlay(SoundCloud)'});
+      } catch (error) {
+        console.error('AutoPlay error:', error);
+        return this.destroy();
+      }
+    } else if (player.current?.sourceName === 'spotify') {
+      try {
+        const data = await autoPlayProvider(
+          'spotify',
+          player.current?.identifier ?? ''
+        );
+        const res = await this.manager?.search({
+          query: `https://open.spotify.com/track/${data}`,
+          requester: 'AutoPlay(Spotify)',
+        });
+
         if (!res?.tracks || ['error', 'empty'].includes(res.loadType)) {
           return;
         }
+
+        const filteredTracks = res.tracks.filter(
+          (track) => track.identifier !== player.current?.identifier
+        );
+
+        if (filteredTracks.length === 0) {
+          return;
+        }
+
+        const track =
+          filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
+        player.queue.add(track as LilyTrack);
+        player.play();
+      } catch (error) {
+        console.error('AutoPlay error:', error);
+        return this.destroy();
+      }
+    } else if (player.current?.sourceName === 'soundcloud') {
+      try {
+        const data = await autoPlayProvider(
+          'soundcloud',
+          player.current?.url ?? ''
+        );
+        const res = await this.manager?.search({
+          query: `${data}`,
+          source: Source.SOUNDCLOUD,
+          requester: 'AutoPlay(SoundCloud)',
+        });
+
+        if (!res?.tracks || ['error', 'empty'].includes(res.loadType)) {
+          return;
+        }
+
         const filteredTracks = res.tracks.filter(
           (track) => track.url !== player.current?.url
         );
@@ -481,17 +498,17 @@ export class LilyNode {
         if (filteredTracks.length === 0) {
           return;
         }
-        
-        let track = filteredTracks[Math.floor(Math.random() * Math.floor(filteredTracks.length))];
+
+        const track =
+          filteredTracks[Math.floor(Math.random() * filteredTracks.length)];
         player.queue.add(track as LilyTrack);
         player.play();
-      });
-  } catch (error) {
-    console.error('AutoPlay error:', error);
-    return this.destroy();
+      } catch (error) {
+        console.error('AutoPlay error:', error);
+        return this.destroy();
+      }
+    }
   }
-  }
-}
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   private handleTrackStuck(player: LilyPlayer, payload: any): void {
     this.manager?.emit(

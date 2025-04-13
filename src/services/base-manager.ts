@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import { type CacheAdapter, WeakMapAdapter } from '../cache';
 import { Plugin, Registry } from '../helpers/registry';
 import {
-  LilyNode,
+  type LilyNode,
   LilyNodeState,
   type LilyNodeOptions as NodeOptions,
   type NodeStats,
@@ -309,22 +309,25 @@ export class LilyManager extends EventEmitter {
       // @ts-expect-error: undefined error lol
       response.data.tracks = response.data;
     }
-  if (response?.loadType && response.loadType === LoadType.Playlist) {
-  const playlistTracks = response.data.tracks || [];
-  const playlistDuration = playlistTracks.reduce((acc, track) => acc + (track.info.length || 0), 0);
+    if (response?.loadType && response.loadType === LoadType.Playlist) {
+      const playlistTracks = response.data.tracks || [];
+      const playlistDuration = playlistTracks.reduce(
+        (acc, track) => acc + (track.info.length || 0),
+        0
+      );
 
-  const playlistInfo: PlaylistInfo = {
-    name: response.data.info.name,
-    selectedTrack: response.data.info.selectedTrack || -1,
-    duration: playlistDuration,
-  };
+      const playlistInfo: PlaylistInfo = {
+        name: response.data.info.name,
+        selectedTrack: response.data.info.selectedTrack || -1,
+        duration: playlistDuration,
+      };
 
-  return {
-    loadType: response.loadType,
-    tracks: playlistTracks.map((track) => new LilyTrack(track, requester)),
-    playlistInfo,
-  } as SearchResult;
-}
+      return {
+        loadType: response.loadType,
+        tracks: playlistTracks.map((track) => new LilyTrack(track, requester)),
+        playlistInfo,
+      } as SearchResult;
+    }
 
     const tracks = response?.data?.tracks?.map(
       (track) => new LilyTrack(track, requester)
@@ -333,13 +336,18 @@ export class LilyManager extends EventEmitter {
     return Object.freeze({
       loadType: response?.loadType,
       tracks: Object.freeze(tracks ?? []),
-      playlistInfo: response?.loadType === LoadType.Playlist
-        ? {
-            name: response.data.info.name,
-            selectedTrack: response.data.info.selectedTrack || -1,
-            duration: response.data.tracks?.reduce((acc, cur) => acc + (cur.info.length || 0), 0) || 0,
-          }
-        : undefined,
+      playlistInfo:
+        response?.loadType === LoadType.Playlist
+          ? {
+              name: response.data.info.name,
+              selectedTrack: response.data.info.selectedTrack || -1,
+              duration:
+                response.data.tracks?.reduce(
+                  (acc, cur) => acc + (cur.info.length || 0),
+                  0
+                ) || 0,
+            }
+          : undefined,
     }) as SearchResult;
   }
 
@@ -361,17 +369,22 @@ export class LilyManager extends EventEmitter {
         token: packet.d.token,
         endpoint: packet.d.endpoint,
       };
-      if(packet.d.endpoint) {
-        const match = packet.d.endpoint.match(/^([a-z-]+)[0-9]*\.discord\.media/i);
-        if(match) {
+      if (packet.d.endpoint) {
+        const match = packet.d.endpoint.match(
+          /^([a-z-]+)[0-9]*\.discord\.media/i
+        );
+        if (match) {
           const region = match[1];
           player.region = region;
-          if (this.options.sortPlayersByRegion && !player.node.regions.includes(region)) {
-            let hasNode = [...this.nodes.cache.values()].some(node =>
+          if (
+            this.options.sortPlayersByRegion &&
+            !player.node.regions.includes(region)
+          ) {
+            const hasNode = [...this.nodes.cache.values()].some((node) =>
               node.regions.includes(region)
             );
             if (hasNode) {
-              let newNode = [...this.nodes.cache.values()].find(node =>
+              const newNode = [...this.nodes.cache.values()].find((node) =>
                 node.regions.includes(region)
               );
               player.node = newNode as LilyNode;

@@ -8,7 +8,4 @@ export default defineConfig({
   dts: true,
   format: ['cjs', 'esm'],
   minify: true,
-  esbuildOptions(options) {
-    options.keepNames = true;
-  },
 });

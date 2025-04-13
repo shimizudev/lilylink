@@ -92,7 +92,7 @@ export class LilyRestHandler {
       }
     }
 
-    const [res, error] = await lilyRequest<T>(url, options, json);
+    const [res, error] = await lilyRequest<T, Error>(url, options, json);
     if (error) {
       throw error;
     }
@@ -126,11 +126,18 @@ export class LilyRestHandler {
       [Source.DEEZER]: 'dzsearch',
       [Source.DEEZER_ISRC]: 'dzisrc',
       [Source.SPOTIFY_REC]: 'sprec',
-      [Source.APPLE_MUSIC]: 'amsearch'
+      [Source.APPLE_MUSIC]: 'amsearch',
     };
-    let searchIdentifier = query.startsWith("http://") || query.startsWith("https://") ? query : source ? sources[source] ? `${sources[source]}:${query}` : `${source}:${query}`: `ytsearch:${query}`;
+    const searchIdentifier =
+      query.startsWith('http://') || query.startsWith('https://')
+        ? query
+        : source
+          ? sources[source]
+            ? `${sources[source]}:${query}`
+            : `${source}:${query}`
+          : `ytsearch:${query}`;
 
-    const params = new URLSearchParams({identifier: searchIdentifier});
+    const params = new URLSearchParams({ identifier: searchIdentifier });
 
     const cacheKey = `${this.cacheKey}:loadTracks:${searchIdentifier}`;
     const manager = this.node?.manager;

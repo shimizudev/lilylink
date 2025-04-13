@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { validate } from '../helpers/validate';
 import type { LilyManager } from '../services/base-manager';
+import { LilyFilters } from './filters';
 import type { LilyNode } from './node';
 import { LilyQueue } from './queue';
 import type { VoiceState } from './rest';
 import type { LilyTrack } from './track';
-import { LilyFilters } from './filters';
+
 export enum PlayerLoop {
   OFF = 0,
   TRACK = 1,
@@ -102,7 +103,7 @@ export class LilyPlayer {
       ping: this.ping,
       queue: Array.from(this.queue.values()),
       nodeId: this.node.identifier ?? this.node.host,
-      data: this.data
+      data: this.data,
     };
 
     await this.manager.cache.set(`${this.cacheKey}:state`, state);
@@ -377,11 +378,7 @@ export class LilyPlayer {
 
     validate(
       position,
-      z
-        .number()
-        .min(1)
-        .max(this.queue.size)
-        .optional(),
+      z.number().min(1).max(this.queue.size).optional(),
       'Invalid position'
     );
     const oldTrack = { ...this.current };
@@ -469,12 +466,7 @@ export class LilyPlayer {
   }
 
   public setLoop(loop: PlayerLoop | keyof typeof PlayerLoop): boolean {
-    validate(
-      loop,
-      z.nativeEnum(PlayerLoop),
-      'Loop is invalid',
-      TypeError
-    );
+    validate(loop, z.nativeEnum(PlayerLoop), 'Loop is invalid', TypeError);
     const oldLoop: PlayerLoop | keyof typeof PlayerLoop = this.loop;
 
     this.loop = loop;
