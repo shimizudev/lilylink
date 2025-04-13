@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { lilyRequest } from './request';
 
 export async function scAutoPlay(url: string) {
