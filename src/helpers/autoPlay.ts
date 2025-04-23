@@ -35,7 +35,9 @@ export async function scAutoPlay(url: string) {
 }
 
 export async function spAutoPlay(track_id: string): Promise<string> {
-  const TOTP_SECRET: Uint8Array = new Uint8Array([12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54]);
+  const TOTP_SECRET: Uint8Array = new Uint8Array([
+    12, 56, 76, 33, 88, 44, 88, 33, 78, 78, 11, 66, 22, 22, 55, 69, 54
+  ]);
 
   function generateTotp(): [string, number] {
     const counter = Math.floor(Date.now() / 30000);
