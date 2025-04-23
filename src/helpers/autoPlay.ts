@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import * as cheerio from 'cheerio';
+import { load } from 'cheerio';
 import { lilyRequest } from './request';
 
 export async function scAutoPlay(url: string) {
@@ -16,7 +16,7 @@ export async function scAutoPlay(url: string) {
   }
 
   const html = response as string;
-  const $ = cheerio.load(html);
+  const $ = load(html);
 
   const sectionElement = $('noscript').eq(1).find('section');
   const articleElements = sectionElement.find('article');
