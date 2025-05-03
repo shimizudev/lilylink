@@ -9,9 +9,11 @@ export enum Source {
   SPOTIFY = 'spsearch',
   BANDCAMP = 'bcsearch',
   DEEZER = 'dzsearch',
+  APPLE_MUSIC = 'amsearch',
+  QOBUZ = 'qbsearch',
   DEEZER_ISRC = 'dzisrc',
   SPOTIFY_REC = 'sprec',
-  APPLE_MUSIC = 'amsearch',
+  QOBUZ_ISRC = 'qbisrc'
 }
 
 export enum LoadType {
@@ -124,9 +126,11 @@ export class LilyRestHandler {
       [Source.SPOTIFY]: 'spsearch',
       [Source.BANDCAMP]: 'bcsearch',
       [Source.DEEZER]: 'dzsearch',
+      [Source.APPLE_MUSIC]: 'amsearch',
+      [Source.QOBUZ]: 'qbsearch',
       [Source.DEEZER_ISRC]: 'dzisrc',
       [Source.SPOTIFY_REC]: 'sprec',
-      [Source.APPLE_MUSIC]: 'amsearch',
+      [Source.QOBUZ_ISRC]: 'qbisrc'
     };
     const searchIdentifier =
       query.startsWith('http://') || query.startsWith('https://')
