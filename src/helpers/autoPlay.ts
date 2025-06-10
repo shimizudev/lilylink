@@ -59,8 +59,8 @@ export async function spAutoPlay(track_id: string): Promise<string> {
 
   const [totp, timestamp] = generateTotp();
   const params = new URLSearchParams({
-    reason: 'transport',
-    productType: 'embed',
+    reason: 'init',
+    productType: 'web-player',
     totp,
     totpVer: '5',
     ts: timestamp.toString(),
@@ -71,7 +71,7 @@ export async function spAutoPlay(track_id: string): Promise<string> {
     const [tokenData, tokenError] = await lilyRequest<
       { accessToken: string },
       Error
-    >(`https://open.spotify.com/get_access_token?${params.toString()}`);
+    >(`https://open.spotify.com/api/token?${params.toString()}`);
     if (tokenError || !tokenData) {
       throw new Error(
         `Token request failed: ${tokenError?.message || 'Unknown error'}`
